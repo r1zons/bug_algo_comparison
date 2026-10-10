@@ -1,0 +1,9 @@
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+*.py[cod]
+outputs/*
+!outputs/.gitkeep
+outputs_trial/
+.DS_Store
