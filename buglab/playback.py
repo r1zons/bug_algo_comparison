@@ -110,6 +110,13 @@ class PlaybackData:
     def method_description(self) -> str:
         return METHOD_DESCRIPTIONS[self.config.method]
 
+    @property
+    def iteration_kind(self) -> str:
+        return "generation" if self.config.method == "ga" else "batch"
+
+    def iteration_label(self, snapshot_index: int) -> str:
+        return f"{self.iteration_kind} {self.snapshot(snapshot_index).generation}"
+
     def snapshot(self, index: int) -> PlaybackSnapshot:
         if not 0 <= index < len(self.snapshots):
             raise IndexError(f"Snapshot index {index} outside 0..{len(self.snapshots)-1}")
@@ -152,6 +159,76 @@ class PlaybackData:
     def selected_candidate(self, snapshot_index: int) -> int:
         return int(np.argmax(self.snapshot(snapshot_index).candidate_scores))
 
+    def best_so_far_source(
+        self, snapshot_index: int
+    ) -> tuple[int | None, int | None, int | None]:
+        """Return snapshot, candidate, and exact ordinal where the stored best first appeared."""
+        genome = self.snapshot(snapshot_index).best_genome
+        for earlier_index in range(snapshot_index + 1):
+            earlier = self.snapshot(earlier_index)
+            matches = np.flatnonzero(np.all(earlier.candidate_genomes == genome, axis=1))
+            if len(matches):
+                candidate = int(matches[0])
+                ordinal = earlier.generation * self.config.population + candidate + 1
+                return earlier_index, candidate, ordinal
+        return None, None, None
+
+    def fastest_successful_source(
+        self, snapshot_index: int
+    ) -> tuple[int, int, int] | None:
+        """Return the fastest successful evaluated candidate up to this snapshot."""
+        fastest: tuple[int, int, int, int] | None = None
+        for earlier_index in range(snapshot_index + 1):
+            snapshot = self.snapshot(earlier_index)
+            for candidate_index in range(len(snapshot.candidate_genomes)):
+                rollout = self.candidate_rollout(earlier_index, candidate_index)
+                if rollout.metrics is None or rollout.metrics.steps_to_goal is None:
+                    continue
+                ordinal = snapshot.generation * self.config.population + candidate_index + 1
+                item = (rollout.metrics.steps_to_goal, ordinal, earlier_index, candidate_index)
+                if fastest is None or item < fastest:
+                    fastest = item
+        if fastest is None:
+            return None
+        _, ordinal, earlier_index, candidate_index = fastest
+        return earlier_index, candidate_index, ordinal
+
+    def candidate_semantics(self, snapshot_index: int) -> dict[str, Any]:
+        """Describe candidates without implying inheritance for non-genetic methods."""
+        snapshot = self.snapshot(snapshot_index)
+        best_index = self.selected_candidate(snapshot_index)
+        common = {
+            "iteration_kind": self.iteration_kind,
+            "iteration": snapshot.generation,
+            "best_by_fitness_candidate_index": best_index,
+        }
+        if self.config.method == "random":
+            return {**common, "kind": "independent_samples", "independent": True}
+        if self.config.method == "ga":
+            return {**common, "kind": "population", "independent": False}
+        if snapshot_index == 0:
+            return {
+                **common,
+                "kind": "initial_candidates",
+                "incumbent_before_candidate_index": None,
+                "neighbor_candidate_indices": (),
+                "proposed_candidate_index": best_index,
+                "accepted": True,
+                "incumbent_after_candidate_index": best_index,
+            }
+        incumbent_score = float(snapshot.candidate_scores[0])
+        proposal_score = float(snapshot.candidate_scores[best_index])
+        accepted = best_index != 0 and proposal_score > incumbent_score
+        return {
+            **common,
+            "kind": "incumbent_and_neighbors",
+            "incumbent_before_candidate_index": 0,
+            "neighbor_candidate_indices": tuple(range(1, len(snapshot.candidate_genomes))),
+            "proposed_candidate_index": best_index,
+            "accepted": accepted,
+            "incumbent_after_candidate_index": best_index if accepted else 0,
+        }
+
     def ranked_candidates(self, snapshot_index: int, top_k: int | None = None) -> np.ndarray:
         order = np.argsort(self.snapshot(snapshot_index).candidate_scores)[::-1]
         if top_k is None or top_k <= 0:
@@ -165,22 +242,56 @@ class PlaybackData:
         rollout = self.candidate_rollout(snapshot_index, candidate_index)
         assert rollout.metrics is not None
         history = self.history_at(snapshot_index)
+        best_index = self.selected_candidate(snapshot_index)
+        best_rollout = self.best_rollout(snapshot_index)
+        assert best_rollout.metrics is not None
+        best_source_index,best_source_candidate,best_source_ordinal = self.best_so_far_source(snapshot_index)
+        fastest = self.fastest_successful_source(snapshot_index)
+        if fastest is None:
+            fastest_fields = {
+                "fastest_successful_snapshot_index": None,
+                "fastest_successful_candidate_index": None,
+                "fastest_successful_evaluation": None,
+                "fastest_successful_steps_to_goal": None,
+            }
+        else:
+            fastest_snapshot,fastest_candidate,fastest_ordinal = fastest
+            fastest_rollout = self.candidate_rollout(fastest_snapshot,fastest_candidate)
+            assert fastest_rollout.metrics is not None
+            fastest_fields = {
+                "fastest_successful_snapshot_index": fastest_snapshot,
+                "fastest_successful_candidate_index": fastest_candidate,
+                "fastest_successful_evaluation": fastest_ordinal,
+                "fastest_successful_steps_to_goal": fastest_rollout.metrics.steps_to_goal,
+            }
         return {
             "method": self.config.method,
             "map": self.config.map_name,
             "fitness": self.config.fitness_name,
             "seed": self.config.seed,
             "generation": snapshot.generation,
+            "iteration": snapshot.generation,
+            "iteration_kind": self.iteration_kind,
             "candidate": candidate_index,
+            "selected_candidate_index": candidate_index,
             "score": float(snapshot.candidate_scores[candidate_index]),
+            "selected_candidate_score": float(snapshot.candidate_scores[candidate_index]),
+            "best_by_fitness_candidate_index": best_index,
+            "best_by_fitness_score": float(snapshot.candidate_scores[best_index]),
             "best_so_far_score": snapshot.best_fitness,
+            "best_so_far_snapshot_index": best_source_index,
+            "best_so_far_candidate_index": best_source_candidate,
+            "best_so_far_first_evaluation": best_source_ordinal,
+            "best_so_far_goal_reached": best_rollout.metrics.goal_reached,
             "goal_reached": rollout.metrics.goal_reached,
+            "selected_goal_reached": rollout.metrics.goal_reached,
             "steps_to_goal": rollout.metrics.steps_to_goal,
             "collisions": rollout.metrics.collision_count,
             "path_length": rollout.metrics.actual_path_length,
             "final_distance": rollout.metrics.final_distance,
             "evaluations": snapshot.evaluations,
             "environment_steps": history["environment_steps"],
+            **fastest_fields,
         }
 
     def individual_summary(self, snapshot_index: int, candidate_index: int) -> dict[str, Any]:
@@ -265,7 +376,7 @@ def trajectory_figure(
     show_best_so_far: bool = True,
     show_collisions: bool = False,
     highlight_success: bool = True,
-    show_checkpoints: bool = True,
+    show_checkpoints: bool = False,
     top_k: int | None = None,
 ):
     """Render one recorded generation without rerunning optimization."""
@@ -300,7 +411,7 @@ def trajectory_figure(
                            color="#c43d3d", label="Blocked move", zorder=9)
     ax.set_title(
         f"{data.config.method.upper()} · {data.config.map_name} · {data.config.fitness_name}\n"
-        f"generation {snapshot.generation} · {snapshot.evaluations} evaluations",
+        f"{data.iteration_kind} {snapshot.generation} · {snapshot.evaluations} evaluations",
         fontsize=14,
     )
     handles, labels = ax.get_legend_handles_labels()
@@ -344,8 +455,12 @@ def summary_figure(data: PlaybackData, snapshot_index: int, candidate_index: int
     grid = fig.add_gridspec(2, 3, height_ratios=(1.0, 1.45))
     table_ax = fig.add_subplot(grid[0, :]);table_ax.axis("off")
     labels = (
-        "method", "map", "fitness", "seed", "generation", "evaluations",
-        "score", "best_so_far_score", "goal_reached", "steps_to_goal",
+        "method", "map", "fitness", "seed", "iteration_kind", "iteration", "evaluations",
+        "selected_candidate_index", "selected_candidate_score",
+        "best_by_fitness_candidate_index", "best_by_fitness_score",
+        "best_so_far_score", "best_so_far_first_evaluation",
+        "fastest_successful_evaluation", "fastest_successful_steps_to_goal",
+        "selected_goal_reached", "steps_to_goal",
         "collisions", "path_length", "final_distance", "environment_steps",
     )
     cells = [[label.replace("_", " ").title(), f"{summary[label]:.3f}"

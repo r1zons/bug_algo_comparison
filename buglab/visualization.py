@@ -28,14 +28,14 @@ def field(ax,world:World,show_checkpoints:bool=False)->None:
     ax.grid(alpha=.12)
 
 
-def map_gallery(path:Path)->None:
-    """Render every named preset with consistent styling."""
+def map_gallery(path:Path,show_checkpoints:bool=False)->None:
+    """Render every named preset; route-hint markers are opt-in."""
     columns=3
     rows=(len(MAPS)+columns-1)//columns
     fig,axes=plt.subplots(rows,columns,figsize=(15,8.5),constrained_layout=True)
     for ax,(name,definition) in zip(axes.flat,MAPS.items()):
         world=World.from_map(definition)
-        field(ax,world,show_checkpoints=True)
+        field(ax,world,show_checkpoints=show_checkpoints)
         ax.set_title(name.replace('_',' ').title())
     for ax in axes.flat[len(MAPS):]:
         ax.set_visible(False)

@@ -1,9 +1,12 @@
 import json
+import builtins
+import importlib.util
 from pathlib import Path
 
 import numpy as np
+import pytest
 
-from buglab.notebook_ui import PlaybackWidget, create_playback_widget
+from buglab.notebook_ui import NotebookFallback, PlaybackWidget, create_playback_widget
 from buglab.playback import (
     ExperimentCache,
     PlaybackConfig,
@@ -80,17 +83,40 @@ def test_playback_controls_do_not_rerun_cached_experiment():
     assert cache.run_count == 1
 
 
+@pytest.mark.skipif(
+    importlib.util.find_spec("ipywidgets") is None or importlib.util.find_spec("IPython") is None,
+    reason="optional notebook dependencies are not installed",
+)
 def test_widget_generation_slider_uses_snapshot_generation_without_rerun():
     cache = ExperimentCache()
     data = cache.run(PlaybackConfig(method="local", generations=3, population=4))
     ui = create_playback_widget(cache)
     assert isinstance(ui, PlaybackWidget)
     assert ui.current is data
+    assert ui.show_checkpoints.value is False
+    assert "display only" in ui.show_checkpoints.description
     assert (ui.generation.min, ui.generation.max) == (0, 2)
     before = cache.run_count
     ui.generation.value = 2
     assert ui.current.snapshot_index(ui.generation.value) == 2
     assert cache.run_count == before
+
+
+def test_static_fallback_without_optional_notebook_dependencies(monkeypatch):
+    real_import = builtins.__import__
+
+    def missing_widgets(name, *args, **kwargs):
+        if name in {"ipywidgets", "IPython"}:
+            raise ImportError("optional notebook dependency deliberately unavailable")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", missing_widgets)
+    cache = ExperimentCache()
+    data = cache.run(PlaybackConfig(generations=1, population=2))
+    fallback = create_playback_widget(cache)
+    assert isinstance(fallback, NotebookFallback)
+    figures = fallback.render_static(data)
+    assert len(figures) == 2
 
 
 def test_generation_and_summary_exports_produce_png_files(tmp_path):

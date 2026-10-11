@@ -74,7 +74,9 @@ class PlaybackWidget:
         self.show_best = widgets.Checkbox(value=True, description="Best-so-far")
         self.show_collisions = widgets.Checkbox(value=False, description="Collision markers")
         self.highlight_success = widgets.Checkbox(value=True, description="Highlight successes")
-        self.show_checkpoints = widgets.Checkbox(value=True, description="Checkpoints")
+        self.show_checkpoints = widgets.Checkbox(
+            value=False, description="Show checkpoint markers (display only)"
+        )
         self.top_k = widgets.IntSlider(value=0, min=0, max=16, step=1,
                                        description="Top-k (0=all)", continuous_update=False)
 
@@ -171,6 +173,7 @@ class PlaybackWidget:
         self.seed.value = data.config.seed
         self.generations.value = data.config.generations
         self.population.value = data.config.population
+        self.generation.description = data.iteration_kind.title()
         self.generation.min = data.generations[0]
         self.generation.max = data.generations[-1]
         self.generation.value = data.generations[0]
@@ -230,8 +233,12 @@ class PlaybackWidget:
     @staticmethod
     def _summary_html(summary: dict[str, Any], method_description: str) -> str:
         fields = (
-            "method", "map", "fitness", "seed", "generation", "best_so_far_score",
-            "goal_reached", "steps_to_goal", "collisions", "path_length",
+            "method", "map", "fitness", "seed", "iteration_kind", "iteration",
+            "selected_candidate_index", "selected_candidate_score",
+            "best_by_fitness_candidate_index", "best_by_fitness_score",
+            "best_so_far_score", "best_so_far_first_evaluation",
+            "fastest_successful_evaluation", "fastest_successful_steps_to_goal",
+            "selected_goal_reached", "steps_to_goal", "collisions", "path_length",
             "evaluations", "environment_steps",
         )
         rows = "".join(
@@ -260,7 +267,9 @@ class PlaybackWidget:
         if self.current is None:
             return
         index = self._snapshot_index()
-        path = self.output_dir / f"{self.current.config.method}_generation_{self.generation.value}.png"
+        path = self.output_dir / (
+            f"{self.current.config.method}_{self.current.iteration_kind}_{self.generation.value}.png"
+        )
         export_generation_png(
             self.current,index,path,selected_candidate=self.candidate.value,
             show_all=self.show_all.value,show_selected=self.show_selected.value,

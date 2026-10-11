@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "02_initial_population",
+    "kind": "initial_population",
+    "title": "One random batch explores many possible paths",
+    "duration_seconds": 6.0,
+    "fps": 6,
+    "output_format": "gif",
+    "snapshot_index": 0,
+    "candidate_index": null,
+    "candidate_selector": "best_by_fitness",
+    "max_candidates": 12,
+    "show_checkpoint_markers": false
+  },
+  "style": {
+    "canvas_width": 12.8,
+    "canvas_height": 7.2,
+    "background": "white",
+    "text": "#20262d",
+    "trajectory": "#2268a8",
+    "population": "#6f8faa",
+    "highlight": "#168579",
+    "collision": "#c43d3d",
+    "font_family": "DejaVu Sans"
+  },
+  "source_playback": {
+    "map_name": "open_field",
+    "method": "random",
+    "fitness_name": "euclidean",
+    "seed": 12,
+    "generations": 1,
+    "population": 12,
+    "collision_penalty": 0.5,
+    "smoothness_weight": 1.0
+  },
+  "source_details": {
+    "illustrative": false,
+    "snapshot_index": 0,
+    "candidate_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "genome_sha256": [
+      "686754d2285ffeb0400977c3ff957b90ef0c52cd0e69f5970fc4a4d51a307c22",
+      "9ecf59df815d2b079b160cc4317f74c494ce0c65e498a2553f5cbdc889dae922",
+      "c2404873adb1ebc3573fe98b4ef6e33d7cfe2b1522c0607b78e97dd3dc0d1d49",
+      "b8b8d014f4411d6d665561ecbafcc5a28c6691fb079647750cf2fff7b114c469",
+      "ae89280d8b5dc4b8e2c660ed22766cd36956d46a6503077b21f0468217610f1d",
+      "44d1e7c9072004b319f69c61e248889e95bfaeb83932e5f3c2923b7eee637b33",
+      "faa4fae9d8e1579e1c7a5160b410de8a56db9c3eb8c193a984931e57df00cbf8",
+      "37aef0943eb49c22ca6b4f0d79857239562eef71b3f9d9425ded54e7469b238d",
+      "2a57bf941d56231f313a91a6c828e33c6620a2f3b644c55ca8857726e346cb8d",
+      "9df7181545ea5cac1195cfd0d5ffead05f92487c515e6dcebbff1d42117c6ea9",
+      "9a509352b197da0f7d813b57b98665e0f20341fb4c04e304c723936386ee7012",
+      "6ca8e3dd6b7bb090ad4af845da6ae9ca918f959b7cf7c1e61acfe8dec7dc12fc"
+    ],
+    "successful_candidates": 2
+  },
+  "rendering_launches_optimizer": false
+}

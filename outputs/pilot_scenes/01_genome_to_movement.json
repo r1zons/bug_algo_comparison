@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "01_genome_to_movement",
+    "kind": "single_beetle",
+    "title": "A genome becomes a sequence of relative turns",
+    "duration_seconds": 6.0,
+    "fps": 6,
+    "output_format": "gif",
+    "snapshot_index": 0,
+    "candidate_index": null,
+    "candidate_selector": "best_by_fitness",
+    "max_candidates": 12,
+    "show_checkpoint_markers": false
+  },
+  "style": {
+    "canvas_width": 12.8,
+    "canvas_height": 7.2,
+    "background": "white",
+    "text": "#20262d",
+    "trajectory": "#2268a8",
+    "population": "#6f8faa",
+    "highlight": "#168579",
+    "collision": "#c43d3d",
+    "font_family": "DejaVu Sans"
+  },
+  "source_playback": {
+    "map_name": "open_field",
+    "method": "random",
+    "fitness_name": "euclidean",
+    "seed": 12,
+    "generations": 1,
+    "population": 12,
+    "collision_penalty": 0.5,
+    "smoothness_weight": 1.0
+  },
+  "source_details": {
+    "illustrative": false,
+    "snapshot_index": 0,
+    "candidate_index": 7,
+    "candidate_score": -1.6636129074879118,
+    "genome_sha256": "37aef0943eb49c22ca6b4f0d79857239562eef71b3f9d9425ded54e7469b238d",
+    "goal_reached": true,
+    "trajectory_points": 57
+  },
+  "rendering_launches_optimizer": false
+}

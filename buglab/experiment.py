@@ -37,6 +37,10 @@ class Run:
     environment_steps:int = 0
     best_success_rollout:Rollout | None = None
     operation_log:list[GeneticOperation] = field(default_factory=list)
+    first_success_batch_end_evaluations:int | None = None
+    best_success_genome:np.ndarray | None = None
+    best_success_evaluation:int | None = None
+    physics_config:dict = field(default_factory=dict)
 
 
 def run_method(world:World, cfg:SearchConfig, method:str, seed:int,
@@ -50,8 +54,10 @@ def run_method(world:World, cfg:SearchConfig, method:str, seed:int,
                                    trace_limit=operation_trace_limit)
     else:
         optimizer=METHODS[method](cfg,seed)
-    best=None; best_g=None; first_success=None; history=[]; snapshots=[]; example=None
+    best=None; best_g=None; first_success=None; first_success_batch_end=None
+    history=[]; snapshots=[]; example=None
     successful_evaluations=0; environment_steps=0; best_success=None
+    best_success_g=None; best_success_evaluation=None
     operation_log=[]; trace_cursor=0
     fitness_name = getattr(fitness, "name", world.fitness_mode)
     for gen in range(generations):
@@ -59,20 +65,25 @@ def run_method(world:World, cfg:SearchConfig, method:str, seed:int,
         results=[evaluate(world,genome,fitness) for genome in batch]
         scores=np.asarray([r.fitness for r in results])
         evals=(gen+1)*cfg.population
-        for g,r in zip(batch,results):
+        for candidate_index,(g,r) in enumerate(zip(batch,results)):
+            evaluation_ordinal=gen*cfg.population+candidate_index+1
             if best is None or r.fitness>best.fitness:
                 best=r; best_g=g.copy()
             assert r.metrics is not None
             environment_steps += r.metrics.environment_steps
             if r.reached:
                 successful_evaluations += 1
+                if first_success is None:
+                    first_success=evaluation_ordinal
+                    first_success_batch_end=evals
                 if best_success is None or r.reached_at < best_success.reached_at:
-                    best_success = r
-        if first_success is None and any(r.reached for r in results):
-            first_success=evals  # Batch-granular for all algorithms.
+                    best_success=r; best_success_g=g.copy()
+                    best_success_evaluation=evaluation_ordinal
         outcome = best_success if best_success is not None else best
         assert outcome is not None and outcome.metrics is not None
+        iteration_kind='generation' if method=='ga' else 'batch'
         history.append({'method':method,'seed':seed,'generation':gen,
+                        'iteration':gen,'iteration_kind':iteration_kind,
                         'map':world.map_name,'fitness':fitness_name,
                         'population':cfg.population,'genome_length':cfg.genome_length,
                         'evaluations':evals,'best_fitness':round(float(best.fitness),8),
@@ -83,7 +94,12 @@ def run_method(world:World, cfg:SearchConfig, method:str, seed:int,
                         'collision_count':outcome.metrics.collision_count,
                         'actual_path_length':round(outcome.metrics.actual_path_length,8),
                         'final_distance':round(outcome.metrics.final_distance,8),
+                        # Historical name retained; this is a genome fraction, not run success.
                         'success_rate':round(successful_evaluations/evals,8),
+                        'evaluated_genome_success_fraction':round(successful_evaluations/evals,8),
+                        'run_success':int(first_success is not None),
+                        'first_success_eval':first_success,
+                        'first_success_batch_end_eval':first_success_batch_end,
                         'environment_steps':environment_steps})
         if gen in snapshot_generations or gen==generations-1:
             ids=np.argsort(scores)[-10:]
@@ -107,9 +123,25 @@ def run_method(world:World, cfg:SearchConfig, method:str, seed:int,
                  'cut':first_offspring.cut,'child':first_offspring.child.copy(),
                  'before_mutation':first_offspring.child_before_mutation.copy(),
                  'mutated_indices':list(first_offspring.mutated_indices)}
-    return Run(method,seed,history,snapshots,best_g,best,first_success,example,
-               world.map_name,fitness_name,asdict(cfg),successful_evaluations,
-               generations*cfg.population,environment_steps,best_success,operation_log)
+    return Run(
+        method=method,seed=seed,history=history,snapshots=snapshots,
+        best_genome=best_g,best_rollout=best,
+        first_success_evaluations=first_success,example_operation=example,
+        map_name=world.map_name,fitness_name=fitness_name,search_config=asdict(cfg),
+        successful_evaluations=successful_evaluations,
+        total_evaluations=generations*cfg.population,
+        environment_steps=environment_steps,best_success_rollout=best_success,
+        operation_log=operation_log,
+        first_success_batch_end_evaluations=first_success_batch_end,
+        best_success_genome=best_success_g,
+        best_success_evaluation=best_success_evaluation,
+        physics_config={
+            'width':world.width,'height':world.height,'radius':world.radius,
+            'goal_radius':world.goal_radius,'step_length':world.step_length,
+            'episode_steps':world.steps,'max_turn':world.max_turn,
+            'grid_resolution':world.grid_resolution,
+        },
+    )
 
 
 def save_history(runs:list[Run],folder:Path)->None:
@@ -122,7 +154,8 @@ def save_history(runs:list[Run],folder:Path)->None:
         writer=csv.DictWriter(f,fieldnames=[
             'method','seed','map','fitness','population','genome_length','evaluations',
             'best_fitness','goal_reached','steps_to_goal','first_success_eval',
-            'success_rate','collision_count','actual_path_length','final_distance',
+            'first_success_batch_end_eval','run_success','success_rate',
+            'evaluated_genome_success_fraction','collision_count','actual_path_length','final_distance',
             'environment_steps','best_geodesic',
         ])
         writer.writeheader()
@@ -138,7 +171,10 @@ def save_history(runs:list[Run],folder:Path)->None:
                              'goal_reached':int(r.successful_evaluations > 0),
                              'steps_to_goal':outcome.metrics.steps_to_goal,
                              'first_success_eval':r.first_success_evaluations,
+                             'first_success_batch_end_eval':r.first_success_batch_end_evaluations,
+                             'run_success':int(r.first_success_evaluations is not None),
                              'success_rate':r.successful_evaluations/r.total_evaluations,
+                             'evaluated_genome_success_fraction':r.successful_evaluations/r.total_evaluations,
                              'collision_count':outcome.metrics.collision_count,
                              'actual_path_length':outcome.metrics.actual_path_length,
                              'final_distance':outcome.metrics.final_distance,
@@ -152,7 +188,9 @@ def save_outcome_comparison(runs:list[Run],path:Path)->None:
     """Export cross-fitness comparisons using shared outcomes only."""
     path.parent.mkdir(parents=True,exist_ok=True)
     fields=['method','seed','map','fitness','evaluations','goal_reached','steps_to_goal',
-            'success_rate','collision_count','actual_path_length','final_distance','environment_steps']
+            'run_success','success_rate','evaluated_genome_success_fraction',
+            'first_success_eval','first_success_batch_end_eval','collision_count',
+            'actual_path_length','final_distance','environment_steps']
     with path.open('w',newline='') as file:
         writer=csv.DictWriter(file,fieldnames=fields)
         writer.writeheader()
@@ -164,7 +202,11 @@ def save_outcome_comparison(runs:list[Run],path:Path)->None:
                 'fitness':run.fitness_name,'evaluations':run.total_evaluations,
                 'goal_reached':int(run.successful_evaluations > 0),
                 'steps_to_goal':outcome.metrics.steps_to_goal,
+                'run_success':int(run.first_success_evaluations is not None),
                 'success_rate':run.successful_evaluations/run.total_evaluations,
+                'evaluated_genome_success_fraction':run.successful_evaluations/run.total_evaluations,
+                'first_success_eval':run.first_success_evaluations,
+                'first_success_batch_end_eval':run.first_success_batch_end_evaluations,
                 'collision_count':outcome.metrics.collision_count,
                 'actual_path_length':outcome.metrics.actual_path_length,
                 'final_distance':outcome.metrics.final_distance,

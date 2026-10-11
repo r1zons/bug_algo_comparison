@@ -5,5 +5,8 @@ __pycache__/
 *.py[cod]
 outputs/*
 !outputs/.gitkeep
+!outputs/pilot_scenes/
+!outputs/pilot_scenes/*.gif
+!outputs/pilot_scenes/*.json
 outputs_trial/
 .DS_Store

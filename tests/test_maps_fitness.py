@@ -11,6 +11,7 @@ from buglab.fitness import (
     EuclideanFitness,
     GeodesicFitness,
     SmoothnessFitness,
+    SparseGoalFitness,
     SuccessDistanceFitness,
 )
 from buglab.maps import MAPS, SPIRAL
@@ -92,6 +93,18 @@ def test_success_distance_always_prioritizes_physical_success():
     near_failure = _trace([(2, 10), (9.9, 10), (10.1, 10)])
     policy = SuccessDistanceFitness()
     assert policy.score(world, success).fitness > policy.score(world, near_failure).fitness
+
+
+def test_sparse_goal_reward_depends_only_on_physical_arrival():
+    world = World(width=20, height=20, start=(2, 10), goal=(12, 10), obstacles=(), steps=3)
+    success = _trace([(2, 10), (6, 10), (10, 10)], reached=True, reached_at=2)
+    near_failure = _trace([(2, 10), (9.9, 10), (10.1, 10)])
+    far_failure = _trace([(2, 10), (3, 10), (4, 10)])
+    policy = SparseGoalFitness()
+    assert policy.score(world, success).fitness == 1.0
+    assert policy.score(world, near_failure).fitness == 0.0
+    assert policy.score(world, far_failure).fitness == 0.0
+    assert policy.score(world, near_failure).min_distance < policy.score(world, far_failure).min_distance
 
 
 def test_collision_and_smoothness_are_configurable_compositions():

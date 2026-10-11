@@ -44,6 +44,17 @@ class EuclideanFitness:
 
 
 @dataclass(frozen=True)
+class SparseGoalFitness:
+    """Reward physical goal arrival only; distance is diagnostic, not reward."""
+
+    name: str = "sparse_goal"
+
+    def score(self, world: "World", trace: "EpisodeTrace") -> FitnessResult:
+        closest = float(_euclidean_distances(world, trace).min())
+        return FitnessResult(1.0 if trace.reached else 0.0, closest)
+
+
+@dataclass(frozen=True)
 class GeodesicFitness:
     """Original obstacle-aware shaping, including success and collision terms.
 
@@ -179,6 +190,7 @@ class LegacyFitness:
 FITNESS_NAMES = (
     "geodesic",
     "euclidean",
+    "sparse_goal",
     "success_distance",
     "collision_penalty",
     "checkpoints",
@@ -198,6 +210,8 @@ def make_fitness(
         return GeodesicFitness()
     if name == "euclidean":
         return EuclideanFitness()
+    if name == "sparse_goal":
+        return SparseGoalFitness()
     if name == "success_distance":
         return SuccessDistanceFitness()
     if name == "collision_penalty":

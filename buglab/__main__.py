@@ -71,7 +71,8 @@ def main():
     for r in runs:
         print(f'{r.method:6} seed {r.seed:2} | map={r.map_name} fitness={r.fitness_name} '
               f'best={r.best_rollout.fitness:8.2f} '
-              f'goal={r.best_rollout.reached} first_success_eval={r.first_success_evaluations}')
+              f'goal={r.best_rollout.reached} first_success_eval={r.first_success_evaluations} '
+              f'first_success_batch_end={r.first_success_batch_end_evaluations}')
     if args.compare_fitness:
         comparison_runs=[
             run_method(world,cfg,args.methods[0],seed,args.generations,gsteps,

@@ -63,7 +63,16 @@ Experiment runner -> history/snapshots -> visualization (PNG/GIF/CSV)
 
 График по 3 seeds — **демонстрационный, не доказательство превосходства**. Для надёжного сравнения увеличьте число seeds до 20–30, контролируйте параметры и сравнивайте дополнительно успех достижения цели. Методы имеют разную вычислительную цену помимо fitness и разные гиперпараметры, поэтому сравнение по одному количеству evaluations не исчерпывает сопоставимость.
 
-Use `--map` to select `default`, `open_field`, `two_bridges`, `spiral`, `narrow_gate`, or `dead_end`. Use `--fitness` to select `euclidean`, `success_distance`, `collision_penalty`, `checkpoints`, `geodesic`, or `smoothness`.
+Use `--map` to select `default`, `open_field`, `two_bridges`, `spiral`, `narrow_gate`, or `dead_end`. Use `--fitness` to select `sparse_goal`, `euclidean`, `success_distance`, `collision_penalty`, `checkpoints`, `geodesic`, or `smoothness`.
+
+### Reward information levels
+
+- `sparse_goal` returns one only after physical goal arrival and zero otherwise. Its distance field is diagnostic only.
+- `euclidean` is simple straight-line goal-distance shaping. It knows the goal coordinate but has no obstacle-aware route information. This is the recommended default for introductory lecture scenes.
+- `geodesic` uses a precomputed obstacle-aware shortest-distance field and therefore injects additional map-specific structure.
+- `checkpoints` uses an ordered designer-authored corridor and injects even more explicit map-specific guidance.
+
+Physical success is always defined by simulator goal arrival, independently of the reward policy. The historical CLI and benchmark defaults remain `geodesic` for reproducibility; existing results are not overwritten.
 
 `--compare-fitness` runs the same optimizer, map, seeds, and evaluation budget for each requested strategy and writes `fitness_comparison.csv` and `fitness_comparison.png`. Those files compare only physical outcomes: success rate, steps to goal, collisions, traveled distance, final distance, evaluation count, and environment steps. Raw fitness values are intentionally excluded because each reward defines a different scale.
 
@@ -99,3 +108,39 @@ The notebook loads `examples/task4_demo.npz`, a small deterministic GA run, and 
 Use **Export generation PNG** for the selected trajectory view and **Export summary PNG** for a compact run report. Exports are written to `outputs_notebook/` by default. The same interface labels GA populations, random-search batches, and local-search incumbents/neighbors consistently. Raw fitness progress is meaningful only within the selected fixed fitness policy; use the shared outcome panels when comparing different reward functions.
 
 If `ipywidgets` is unavailable, `create_playback_widget()` returns a documented static fallback. The importable functions in `buglab.playback` can still load the example cache and render or export figures with Matplotlib.
+
+## Reproducible benchmarks and lecture exports
+
+The fast preset is intentionally small and is suitable for CI or checking the complete export pipeline:
+
+```bash
+python -m buglab.benchmark --preset smoke --output outputs/task5_smoke
+python -m buglab.benchmark --preset smoke --media --case-study --output outputs/task5_lecture
+```
+
+The second command additionally creates one movement GIF per optimizer, a synchronized comparison GIF, a side-by-side PNG, and the spiral/two-bridges fitness-design study. Rendering consumes recorded snapshots and never reruns optimization.
+
+The full preset uses 25 seeds and 4,160 candidate evaluations per method and is not run by default:
+
+```bash
+python -m buglab.benchmark --preset full --output outputs/task5_full
+```
+
+All settings can be overridden with `--map`, `--fitness`, `--methods`, `--seeds`, `--population`, and `--evaluations`. The evaluation budget must be divisible by the population size. See [BENCHMARKS.md](BENCHMARKS.md) for metric definitions and interpretation limits.
+
+Task 5 changes `first_success_evaluations` from the historical end-of-batch approximation to the exact one-based candidate ordinal. `first_success_batch_end_evaluations` preserves the old value. GA iterations are called generations; random-search and local-search iterations are called batches.
+
+## Pilot lecture scenes
+
+The declarative pilot manifest uses a recorded Euclidean-fitness cache and launches no optimizer while rendering:
+
+```bash
+python -m buglab.scenes \
+  --manifest pilot_scenes.json \
+  --data examples/pilot_lecture_euclidean.npz \
+  --output outputs/pilot_scenes
+```
+
+Scene speed, duration, deterministic candidate selection, output format, and checkpoint-marker visibility are controlled in `pilot_scenes.json`. GIF is always supported; MP4 is accepted when Matplotlib can find `ffmpeg`. Each animation has a JSON sidecar with scene configuration and source provenance. See [ANIMATION_PLAN.md](ANIMATION_PLAN.md) for the complete Act I storyboard.
+
+The notebook checkbox is labeled **Show checkpoint markers (display only)** and defaults off. It changes only the renderer; selecting checkpoint fitness remains a separate explicit experiment setting.

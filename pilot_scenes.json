@@ -1,0 +1,30 @@
+{
+  "scenes": [
+    {
+      "name": "01_genome_to_movement",
+      "kind": "single_beetle",
+      "title": "A genome becomes a sequence of relative turns",
+      "duration_seconds": 6.0,
+      "fps": 6,
+      "candidate_selector": "best_by_fitness",
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "02_initial_population",
+      "kind": "initial_population",
+      "title": "One random batch explores many possible paths",
+      "duration_seconds": 6.0,
+      "fps": 6,
+      "max_candidates": 12,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "03_synthetic_crossover",
+      "kind": "synthetic_crossover",
+      "title": "One-point crossover combines steering instructions",
+      "duration_seconds": 7.0,
+      "fps": 6,
+      "show_checkpoint_markers": false
+    }
+  ]
+}

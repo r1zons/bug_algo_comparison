@@ -69,7 +69,9 @@ The historical `World(fitness_mode=...)`, `evaluate(world, genome)`, CLI argumen
 
 Named presets are `default`, `open_field`, `two_bridges`, `spiral`, `narrow_gate`, and `dead_end`. Each preset has a deterministic reference corridor that is reachable under the default 90-step horizon, 1.55 step length, 0.42-radian maximum relative turn, beetle radius, and segment collision rules. These references validate the task; optimizers do not receive them.
 
-Named fitness strategies are `euclidean`, `success_distance`, `collision_penalty`, `checkpoints`, `geodesic`, and `smoothness`. Collision and smoothness policies compose configurable penalties with a base reward. Physical goal detection stays in `simulate()` and is identical for every reward.
+Named fitness strategies are `sparse_goal`, `euclidean`, `success_distance`, `collision_penalty`, `checkpoints`, `geodesic`, and `smoothness`. Collision and smoothness policies compose configurable penalties with a base reward. Physical goal detection stays in `simulate()` and is identical for every reward.
+
+`sparse_goal` is the information-minimal policy: its scalar is determined only by physical arrival. `euclidean` supplies straight-line proximity but no obstacle routing. These are distinct from `geodesic`, whose precomputed obstacle-aware field supplies map structure, and `checkpoints`, whose ordered targets encode a designer-authored route. Introductory animation manifests recommend `euclidean`; legacy CLI and benchmark defaults remain unchanged.
 
 Geodesic shaping uses an obstacle-aware grid and checkpoint shaping encodes an ordered useful corridor. Both inject map-specific domain knowledge. In particular, the spiral goal is visually close across its inner wall: Euclidean proximity can reward approaching that wall even though the valid route initially winds away from the goal. This is why raw scalar fitness values from different policies must never be compared.
 
@@ -101,6 +103,26 @@ Compact `.npz` caches use numeric arrays plus JSON metadata and load with `allow
 `notebook_ui.py` is optional and imports `ipywidgets` only when the interface is created. Without notebook dependencies, the simulator, CLI, static Matplotlib playback, and PNG exports remain usable. The notebook itself contains initialization and teaching guidance only; playback and rendering logic stays in importable modules.
 
 The progress display labels evaluation budget explicitly. Its raw-fitness panel applies to one fixed policy only. Cross-policy interpretation must use the adjacent shared outcomes, never numerical fitness values from different reward definitions.
+
+Checkpoint marker visibility is a renderer-only option. The notebook control defaults off and is labeled “Show checkpoint markers (display only).” The map gallery and lecture renderers also hide route-hint markers by default and expose them only through explicit renderer arguments. Visibility does not mutate `World.checkpoints`, select `CheckpointFitness`, rebuild rewards, call an optimizer, or change recorded scores. Checkpoint fitness remains independently selectable for research comparisons.
+
+## Task 5 benchmarks and presentation media
+
+`run_method()` now records the exact one-based evaluation ordinal of the first successful candidate. The previous batch-end approximation remains available as `first_success_batch_end_evaluations`. Every submitted candidate counts toward the budget, including re-evaluated GA elites and the repeated local-search incumbent. Environment steps remain a supplementary cost because successful episodes can terminate early.
+
+Iteration zero and subsequent iterations are called **generations** only for GA. Random search produces independent **batches**; local search produces batches containing the incumbent and mutated neighbors. `PlaybackData.candidate_semantics()` exposes these distinctions, including local acceptance or rejection, without changing any optimizer.
+
+The benchmark layer separates four identities: the UI-selected candidate, the best-by-fitness candidate in the current batch, the best-so-far candidate over the run, and the fastest physically successful candidate. Run-level success rate counts seeds with at least one success. Evaluated-genome success fraction counts submitted genomes and can include repeated elites or incumbents; it is never described as independent success evidence.
+
+`animations.py` accepts only completed `PlaybackData`. It deterministically replays each required genome once, caches those paths, and renders method-specific or synchronized frames without calling `ask()`, `tell()`, or `run_method()`. An animation coordinate is `(optimizer iteration, episode timestep)`. A trajectory shorter than the global episode horizon remains at its recorded terminal position.
+
+`benchmark.py` supplies the smoke and 25-seed full presets, matched-budget runs, right-censored first-success data, Kaplan–Meier median time-to-success, median/IQR progress, CSV/JSON exports, and the reward-design case study. Cross-fitness case-study files intentionally omit raw reward values. Geodesic fields and ordered checkpoints are explicitly treated as extra map-specific information.
+
+## Lecture scene exports
+
+`scenes.py` is a deliberately small rendering layer over `PlaybackData` and the synthetic operation example. `SceneConfig` controls scene kind, deterministic selection, duration, fps, format, and optional marker overlays. `LectureStyle` fixes a 16:9 white canvas and shared colors/typography. Render functions accept already-recorded data and contain no optimizer construction or experiment execution.
+
+The JSON manifest `pilot_scenes.json` defines the reviewed pilot set. Every export writes a metadata sidecar containing the scene/style configuration, playback identity, genome digest or synthetic radian values, and an explicit `rendering_launches_optimizer: false` statement. GIF uses Pillow; MP4 is optional and requires an available `ffmpeg` writer.
 
 ## Интерпретация начального эксперимента
 
