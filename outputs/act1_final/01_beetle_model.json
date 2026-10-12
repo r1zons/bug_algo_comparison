@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "01_beetle_model",
+    "kind": "single_beetle",
+    "title": "A genome becomes movement",
+    "duration_seconds": 6.0,
+    "fps": 12,
+    "output_format": "gif",
+    "snapshot_index": 0,
+    "candidate_index": null,
+    "candidate_selector": "best_by_fitness",
+    "max_candidates": 12,
+    "show_checkpoint_markers": false,
+    "data_path": "examples/act1/open_random.npz",
+    "operation_log_path": null,
+    "comparison_data_paths": null,
+    "educational_message": "A genome is a sequence of turn commands that produces a trajectory."
+  },
+  "style": {
+    "canvas_width": 12.8,
+    "canvas_height": 7.2,
+    "background": "white",
+    "text": "#20262d",
+    "trajectory": "#2268a8",
+    "population": "#6f8faa",
+    "highlight": "#168579",
+    "collision": "#c43d3d",
+    "secondary": "#7655a6",
+    "muted": "#8a96a3",
+    "font_family": "DejaVu Sans"
+  },
+  "source_playback": {
+    "map_name": "open_field",
+    "method": "random",
+    "fitness_name": "euclidean",
+    "seed": 12,
+    "generations": 1,
+    "population": 12,
+    "collision_penalty": 0.5,
+    "smoothness_weight": 1.0
+  },
+  "source_data_paths": {
+    "primary": "examples/act1/open_random.npz"
+  },
+  "source_details": {
+    "illustrative": false,
+    "snapshot_index": 0,
+    "candidate_index": 7,
+    "candidate_score": -1.6636129074879118,
+    "genome_sha256": "37aef0943eb49c22ca6b4f0d79857239562eef71b3f9d9425ded54e7469b238d",
+    "goal_reached": true,
+    "trajectory_points": 57
+  },
+  "export": {
+    "renderer": "buglab.scenes",
+    "format": "gif",
+    "fps": 12,
+    "frame_count": 72,
+    "canvas_inches": [
+      12.8,
+      7.2
+    ],
+    "dpi": 100,
+    "canvas_pixels": [
+      1280,
+      720
+    ],
+    "artifact_sha256": "6f95dc206c539d4b924cfa76a722220e5c3ab9346e149dc7398da2cfbd7b847b"
+  },
+  "rendering_launches_optimizer": false
+}

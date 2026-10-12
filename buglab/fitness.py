@@ -32,7 +32,13 @@ def _euclidean_distances(world: "World", trace: "EpisodeTrace") -> np.ndarray:
 
 @dataclass(frozen=True)
 class EuclideanFitness:
-    """Reward final or best straight-line proximity; it knows no obstacles."""
+    """Reward minimum straight-line distance attained during the episode.
+
+    ``use_best=False`` is retained for source compatibility with earlier Task 2
+    callers. New configurations that intentionally score the terminal position
+    should use :class:`FinalEuclideanFitness`, whose name records that semantic
+    distinction in experiment metadata.
+    """
 
     use_best: bool = True
     name: str = "euclidean"
@@ -41,6 +47,17 @@ class EuclideanFitness:
         distances = _euclidean_distances(world, trace)
         distance = float(distances.min() if self.use_best else distances[-1])
         return FitnessResult(-distance, float(distances.min()))
+
+
+@dataclass(frozen=True)
+class FinalEuclideanFitness:
+    """Reward straight-line proximity at the final simulated position only."""
+
+    name: str = "final_euclidean"
+
+    def score(self, world: "World", trace: "EpisodeTrace") -> FitnessResult:
+        distances = _euclidean_distances(world, trace)
+        return FitnessResult(-float(distances[-1]), float(distances.min()))
 
 
 @dataclass(frozen=True)
@@ -190,6 +207,7 @@ class LegacyFitness:
 FITNESS_NAMES = (
     "geodesic",
     "euclidean",
+    "final_euclidean",
     "sparse_goal",
     "success_distance",
     "collision_penalty",
@@ -210,6 +228,8 @@ def make_fitness(
         return GeodesicFitness()
     if name == "euclidean":
         return EuclideanFitness()
+    if name == "final_euclidean":
+        return FinalEuclideanFitness()
     if name == "sparse_goal":
         return SparseGoalFitness()
     if name == "success_distance":

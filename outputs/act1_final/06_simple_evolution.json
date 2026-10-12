@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "06_simple_evolution",
+    "kind": "multi_generation",
+    "title": "Repeated generations can improve the search",
+    "duration_seconds": 12.0,
+    "fps": 12,
+    "output_format": "gif",
+    "snapshot_index": 0,
+    "candidate_index": null,
+    "candidate_selector": "best_by_fitness",
+    "max_candidates": 10,
+    "show_checkpoint_markers": false,
+    "data_path": "examples/act1/simple_ga.npz",
+    "operation_log_path": null,
+    "comparison_data_paths": null,
+    "educational_message": "Recorded populations move, pause at evaluation, and then transition to the next generation."
+  },
+  "style": {
+    "canvas_width": 12.8,
+    "canvas_height": 7.2,
+    "background": "white",
+    "text": "#20262d",
+    "trajectory": "#2268a8",
+    "population": "#6f8faa",
+    "highlight": "#168579",
+    "collision": "#c43d3d",
+    "secondary": "#7655a6",
+    "muted": "#8a96a3",
+    "font_family": "DejaVu Sans"
+  },
+  "source_playback": {
+    "map_name": "default",
+    "method": "ga",
+    "fitness_name": "euclidean",
+    "seed": 0,
+    "generations": 12,
+    "population": 16,
+    "collision_penalty": 0.5,
+    "smoothness_weight": 1.0
+  },
+  "source_data_paths": {
+    "primary": "examples/act1/simple_ga.npz"
+  },
+  "source_details": {
+    "illustrative": false,
+    "generations_shown": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "best_fitness_by_generation": [
+      -58.65902363292136,
+      -57.29907083946089,
+      -19.171757922474384,
+      -11.660290117640377,
+      -11.660290117640377,
+      -1.4344380202319928,
+      -1.4344380202319928,
+      -1.4344380202319928,
+      -1.4344380202319928,
+      -1.4344380202319928,
+      -1.4344380202319928,
+      -1.4344380202319928
+    ],
+    "route_family_counts": null
+  },
+  "export": {
+    "renderer": "buglab.scenes",
+    "format": "gif",
+    "fps": 12,
+    "frame_count": 144,
+    "canvas_inches": [
+      12.8,
+      7.2
+    ],
+    "dpi": 100,
+    "canvas_pixels": [
+      1280,
+      720
+    ],
+    "artifact_sha256": "5946514ec366cfa816a6d26c56c6adc35bb75be3ef390e61112131ee2219b646"
+  },
+  "rendering_launches_optimizer": false
+}

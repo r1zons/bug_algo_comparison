@@ -4,7 +4,7 @@
 
 Act I uses a fixed 16:9 white canvas, stable map coordinates, large sans-serif labels, blue for ordinary trajectories, teal for best-so-far or selected trajectories, orange for the goal and Euclidean guidance, gray for obstacles, purple for an alternative bridge route, blue/orange for inherited genes, and magenta for mutation or distance-increasing corridor segments. Checkpoint markers are hidden.
 
-Euclidean goal proximity is the deliberately simple introductory fitness policy. It is easy to explain and useful on the early maps, but it contains no obstacle-aware routing information. Scene 09 exposes that limitation rather than introducing a more sophisticated reward as a solution.
+Closest-approach Euclidean fitness (`-min_t distance`) is the deliberately simple introductory policy. It is easy to explain and useful on the early maps, but it contains no obstacle-aware routing information and is not terminal-position distance. Scene 09 exposes that limitation rather than introducing a more sophisticated reward as a solution.
 
 ## Block A — The beetle model
 
@@ -32,15 +32,15 @@ Euclidean goal proximity is the deliberately simple introductory fitness policy.
 - **Data:** Actual GA generation-zero paths, Euclidean scores, and traced tournament parent use.
 - **Composition:** Population map plus a compact score strip; actual frequently selected parents turn teal.
 - **Duration:** 5.5 seconds.
-- **Labels:** Simulate, score, select; “higher is better.”
+- **Labels:** Simulate, score the closest approach over the whole trajectory, select; “higher is better.”
 - **Source:** `open_ga.npz` and `open_ga_operations.json`, seed 12.
 
-### 04. Crossover combines programs; mutation changes commands — essential
+### 04. Crossover combines programs; mutation changes commands — essential static sequence
 
 - **Message:** New genomes combine parent command sequences and then receive mutations.
 - **Data:** Canonical deterministic eight-gene synthetic operation.
-- **Composition:** Parent rows, one-point cut, pre-mutation child, explicit magenta mutations, final child.
-- **Duration:** 7 seconds.
+- **Composition:** Four 16:9 PNG/SVG frames: parents, one-point child, explicit mutation, then all simulated trajectories.
+- **Duration:** Lecturer-paced static sequence; the original seven-second GIF remains optional.
 - **Labels:** Degree values, cut index, mutation arrows, “illustrative deterministic example.”
 - **Source:** `synthetic_operation()`; radians internally, degrees for display.
 
@@ -72,7 +72,7 @@ Euclidean goal proximity is the deliberately simple introductory fitness policy.
 - **Data:** Actual 14-generation GA run on `two_bridges` selected for naturally occurring upper and lower crossings.
 - **Composition:** Blue lower-passage paths, purple upper-passage paths, gray unclassified paths, teal best-so-far.
 - **Duration:** 10 seconds.
-- **Labels:** Route-family legend, generation, evaluations, best fitness.
+- **Labels:** Barrier-crossing legend, generation, evaluations, best fitness, and an explicit warning that crossing does not imply goal success.
 - **Source:** `bridges_ga.npz`, seed 4. The observed imbalance between route families is preserved.
 
 ### 08. Three search strategies, one shared problem — essential
@@ -88,13 +88,13 @@ Euclidean goal proximity is the deliberately simple introductory fitness policy.
 
 ### 09. When closer to the goal is not better — essential
 
-- **Message:** Straight-line distance can reward an unreachable approach through a wall.
+- **Message:** Minimum-over-trajectory straight-line distance can reward one unreachable close approach through a wall.
 - **Data:** Actual Euclidean-fitness GA candidates on `spiral`, plus a separately labeled physics-valid corridor reference.
 - **Composition:** One spiral map, Euclidean distance rings and direct line, orange optimizer paths, then a dashed feasible corridor with distance-increasing segments in magenta.
 - **Duration:** 7 seconds.
-- **Labels:** “Across a wall,” “must sometimes move farther,” and an annotation at the misleading near-goal point.
+- **Labels:** The exact `-min_t distance` definition, “across a wall,” a physically valid distance-increasing detour segment, and an annotation at the misleading near-goal point.
 - **Source:** `spiral_ga.npz`, seed 0. The explanatory corridor follows map checkpoints but was not available to the optimizer.
 
 ## Production boundary
 
-`python -m buglab.act1` explicitly creates the seven source runs. `python -m buglab.scenes --manifest act1_scenes.json` loads only saved data and exports the nine GIFs plus provenance sidecars. Rendering never launches optimization.
+`python -m buglab.act1` explicitly creates the seven source runs. `python -m buglab.act1_bundle --manifest act1_final_scenes.json --output outputs/act1_final` loads only saved data and exports the polished animations, static Scene 04 sequence, provenance sidecars, and inspection contact sheet. Rendering never launches optimization. `act1_scenes.json` and `outputs/act1_before_polish/` remain available for historical comparison.

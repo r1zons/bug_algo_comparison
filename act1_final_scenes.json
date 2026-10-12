@@ -1,0 +1,107 @@
+{
+  "schema_version": 2,
+  "package": "Bug Evolution Lab — Act I visual polish",
+  "notes": "Scene 04 is the static four-frame sequence exported by buglab.crossover_slides.",
+  "static_sequence": [
+    "04a_crossover_parents",
+    "04b_crossover_child",
+    "04c_crossover_mutation",
+    "04d_crossover_outcome"
+  ],
+  "scenes": [
+    {
+      "name": "01_beetle_model",
+      "kind": "single_beetle",
+      "title": "A genome becomes movement",
+      "educational_message": "A genome is a sequence of turn commands that produces a trajectory.",
+      "duration_seconds": 6.0,
+      "fps": 12,
+      "data_path": "examples/act1/open_random.npz",
+      "candidate_selector": "best_by_fitness",
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "02_population",
+      "kind": "initial_population",
+      "title": "Different genomes explore different paths",
+      "educational_message": "Different genomes produce different trajectories under identical physics.",
+      "duration_seconds": 5.5,
+      "fps": 12,
+      "data_path": "examples/act1/open_random.npz",
+      "max_candidates": 12,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "03_evaluation_selection",
+      "kind": "evaluation_selection",
+      "title": "Evaluate, then select parents",
+      "educational_message": "The introductory score uses the closest straight-line approach over the complete trajectory.",
+      "duration_seconds": 5.5,
+      "fps": 12,
+      "data_path": "examples/act1/open_ga.npz",
+      "operation_log_path": "examples/act1/open_ga_operations.json",
+      "max_candidates": 12,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "05_one_generation_transition",
+      "kind": "generation_transition",
+      "title": "One generation update, step by step",
+      "educational_message": "One update evaluates a population, selects parents, creates offspring, and evaluates the complete next generation.",
+      "duration_seconds": 9.0,
+      "fps": 12,
+      "data_path": "examples/act1/simple_ga.npz",
+      "operation_log_path": "examples/act1/simple_ga_operations.json",
+      "max_candidates": 12,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "06_simple_evolution",
+      "kind": "multi_generation",
+      "title": "Repeated generations can improve the search",
+      "educational_message": "Recorded populations move, pause at evaluation, and then transition to the next generation.",
+      "duration_seconds": 12.0,
+      "fps": 12,
+      "data_path": "examples/act1/simple_ga.npz",
+      "max_candidates": 10,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "07_two_bridges_evolution",
+      "kind": "route_families",
+      "title": "A population can explore two barrier openings",
+      "educational_message": "Colors identify physically crossed openings, independently of whether the goal was reached.",
+      "duration_seconds": 10.0,
+      "fps": 12,
+      "data_path": "examples/act1/bridges_ga.npz",
+      "max_candidates": 16,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "08_method_comparison",
+      "kind": "method_comparison",
+      "title": "Three search strategies, one shared problem",
+      "educational_message": "GA evolves populations, random search draws independent batches, and local search tests neighbors of an incumbent.",
+      "duration_seconds": 12.0,
+      "fps": 12,
+      "comparison_data_paths": {
+        "ga": "examples/act1/bridges_ga.npz",
+        "random": "examples/act1/bridges_random.npz",
+        "local": "examples/act1/bridges_local.npz"
+      },
+      "max_candidates": 8,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "09_spiral_fitness_problem",
+      "kind": "spiral_limitation",
+      "title": "When closest approach is not useful progress",
+      "educational_message": "Minimum-over-trajectory straight-line distance can favor a wall-separated approach and penalize a necessary detour.",
+      "duration_seconds": 7.0,
+      "fps": 12,
+      "data_path": "examples/act1/spiral_ga.npz",
+      "max_candidates": 12,
+      "show_checkpoint_markers": false
+    }
+  ]
+}

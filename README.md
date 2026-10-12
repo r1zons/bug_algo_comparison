@@ -63,12 +63,13 @@ Experiment runner -> history/snapshots -> visualization (PNG/GIF/CSV)
 
 График по 3 seeds — **демонстрационный, не доказательство превосходства**. Для надёжного сравнения увеличьте число seeds до 20–30, контролируйте параметры и сравнивайте дополнительно успех достижения цели. Методы имеют разную вычислительную цену помимо fitness и разные гиперпараметры, поэтому сравнение по одному количеству evaluations не исчерпывает сопоставимость.
 
-Use `--map` to select `default`, `open_field`, `two_bridges`, `spiral`, `narrow_gate`, or `dead_end`. Use `--fitness` to select `sparse_goal`, `euclidean`, `success_distance`, `collision_penalty`, `checkpoints`, `geodesic`, or `smoothness`.
+Use `--map` to select `default`, `open_field`, `two_bridges`, `spiral`, `narrow_gate`, or `dead_end`. Use `--fitness` to select `sparse_goal`, `euclidean`, `final_euclidean`, `success_distance`, `collision_penalty`, `checkpoints`, `geodesic`, or `smoothness`.
 
 ### Reward information levels
 
 - `sparse_goal` returns one only after physical goal arrival and zero otherwise. Its distance field is diagnostic only.
-- `euclidean` is simple straight-line goal-distance shaping. It knows the goal coordinate but has no obstacle-aware route information. This is the recommended default for introductory lecture scenes.
+- `euclidean` is the historical closest-approach score: negative minimum straight-line goal distance attained anywhere along the episode. It knows the goal coordinate but has no obstacle-aware route information. This is the recommended default for introductory lecture scenes.
+- `final_euclidean` scores only the final simulated position. It is separate so reports cannot silently confuse terminal distance with the legacy closest-approach score.
 - `geodesic` uses a precomputed obstacle-aware shortest-distance field and therefore injects additional map-specific structure.
 - `checkpoints` uses an ordered designer-authored corridor and injects even more explicit map-specific guidance.
 
@@ -147,11 +148,13 @@ The notebook checkbox is labeled **Show checkpoint markers (display only)** and 
 
 ## Final Act I lecture package
 
-The reviewed Act I sequence contains nine focused 16:9 GIFs covering the beetle model, population diversity, selection, crossover and mutation, evolution, optimizer semantics, and the spiral-map limitation of straight-line fitness. Prepare source experiments explicitly, then render only from saved data:
+The polished Act I sequence contains eight focused 16:9 GIFs and four static crossover/mutation frames. The original synthetic Scene 04 GIF remains optional comparison material. Prepare source experiments explicitly, then render only from saved data:
 
 ```bash
 python -m buglab.act1 --output examples/act1
-python -m buglab.scenes --manifest act1_scenes.json --output outputs/act1
+python -m buglab.act1_bundle \
+  --manifest act1_final_scenes.json \
+  --output outputs/act1_final
 ```
 
-See [ACT1_ANIMATION_INDEX.md](ACT1_ANIMATION_INDEX.md) for the lecture order, source of every scene, reproduction details, and educational limitations. The source manifest is `act1_scenes.json`; each GIF has a JSON provenance sidecar.
+See [ACT1_ANIMATION_INDEX.md](ACT1_ANIMATION_INDEX.md) for the lecture order, source of every scene, reproduction details, and educational limitations. The source manifest is `act1_final_scenes.json`; each GIF and static frame has a JSON provenance sidecar, and GIF sidecars include the exported artifact hash. Historical outputs remain under `outputs/act1_before_polish/`.

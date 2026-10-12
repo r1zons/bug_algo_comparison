@@ -155,6 +155,44 @@ def _save_movie(movie: animation.FuncAnimation, figure, path: Path, config: Scen
     plt.close(figure)
 
 
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def interpolated_trajectory_prefix(positions: np.ndarray, episode_step: float) -> np.ndarray:
+    """Reveal an actual trajectory smoothly without changing its sampled path."""
+    if len(positions) == 0:
+        raise ValueError("A trajectory must contain at least one position")
+    bounded = float(np.clip(episode_step, 0.0, len(positions) - 1))
+    lower = int(np.floor(bounded))
+    fraction = bounded - lower
+    prefix = positions[:lower + 1].copy()
+    if fraction > 0 and lower + 1 < len(positions):
+        point = positions[lower] + fraction * (positions[lower + 1] - positions[lower])
+        prefix = np.vstack((prefix, point))
+    return prefix
+
+
+def _snapshot_schedule(frame_count: int, snapshot_count: int) -> list[tuple[int, float]]:
+    """Allocate motion plus a short final-state hold to every recorded batch."""
+    if snapshot_count <= 0:
+        raise ValueError("snapshot_count must be positive")
+    base, extra = divmod(frame_count, snapshot_count)
+    schedule: list[tuple[int, float]] = []
+    for snapshot_index in range(snapshot_count):
+        frames = max(1, base + int(snapshot_index < extra))
+        for local_index in range(frames):
+            phase = local_index / max(1, frames - 1)
+            # The final 20% holds the evaluated state before the next batch.
+            episode_fraction = min(1.0, phase / .8)
+            schedule.append((snapshot_index, episode_fraction))
+    return schedule[:frame_count]
+
+
 def _selected_candidate(config: SceneConfig, data: PlaybackData) -> int:
     snapshot = data.snapshot(config.snapshot_index)
     if config.candidate_selector == "best_by_fitness":
@@ -176,7 +214,7 @@ def _single_beetle_movie(
     snapshot = data.snapshot(config.snapshot_index)
     genome = snapshot.candidate_genomes[candidate]
     rollout = data.candidate_rollout(config.snapshot_index, candidate)
-    steps = np.linspace(0, data.world.steps, config.frame_count, dtype=int)
+    steps = np.linspace(0, data.world.steps, config.frame_count)
     figure, map_ax = plt.subplots(figsize=(style.canvas_width, style.canvas_height),
                                   facecolor=style.background)
     figure.subplots_adjust(left=.09, right=.91, bottom=.11, top=.86)
@@ -198,9 +236,10 @@ def _single_beetle_movie(
                 ha="center", fontsize=11)
 
     def draw(frame_index: int):
-        requested_step = int(steps[frame_index])
+        requested_step_float = float(steps[frame_index])
+        requested_step = int(np.floor(requested_step_float))
         position_index = min(requested_step, len(rollout.positions) - 1)
-        prefix = rollout.positions[: position_index + 1]
+        prefix = interpolated_trajectory_prefix(rollout.positions, requested_step_float)
         route.set_data(prefix[:, 0], prefix[:, 1])
         beetle.set_data([prefix[-1, 0]], [prefix[-1, 1]])
         gene_index = 0 if position_index == 0 else min(position_index - 1, len(genome) - 1)
@@ -242,7 +281,7 @@ def _population_movie(
     count = min(config.max_candidates, len(snapshot.candidate_genomes))
     candidate_indices = tuple(range(count))
     rollouts = [data.candidate_rollout(config.snapshot_index, index) for index in candidate_indices]
-    steps = np.linspace(0, data.world.steps, config.frame_count, dtype=int)
+    steps = np.linspace(0, data.world.steps, config.frame_count)
     figure, map_ax = plt.subplots(figsize=(style.canvas_width, style.canvas_height),
                                   facecolor=style.background)
     field(map_ax, data.world, show_checkpoints=config.show_checkpoint_markers)
@@ -262,11 +301,12 @@ def _population_movie(
                 ha="center", fontsize=11)
 
     def draw(frame_index: int):
-        requested_step = int(steps[frame_index])
+        requested_step_float = float(steps[frame_index])
+        requested_step = int(np.floor(requested_step_float))
         active = 0; successes = 0
         for rollout, line, dot in zip(rollouts, lines, dots):
             position_index = min(requested_step, len(rollout.positions) - 1)
-            prefix = rollout.positions[: position_index + 1]
+            prefix = interpolated_trajectory_prefix(rollout.positions, requested_step_float)
             line.set_data(prefix[:, 0], prefix[:, 1])
             dot.set_data([prefix[-1, 0]], [prefix[-1, 1]])
             active += int(position_index < len(rollout.positions) - 1)
@@ -407,8 +447,9 @@ def _selection_movie(
         field(map_ax, data.world, show_checkpoints=False)
         path_fraction = min(1.0, phase / .38)
         for candidate, rollout in enumerate(rollouts):
-            stop = max(1, int(path_fraction * (len(rollout.positions) - 1)))
-            path = rollout.positions[:stop + 1]
+            path = interpolated_trajectory_prefix(
+                rollout.positions, path_fraction * (len(rollout.positions) - 1)
+            )
             chosen = candidate in selected and phase >= .62
             map_ax.plot(path[:, 0], path[:, 1], color=style.highlight if chosen else style.population,
                         alpha=.95 if chosen else .26, lw=3 if chosen else 1.2)
@@ -417,8 +458,8 @@ def _selection_movie(
                 map_ax.annotate(f"parent {selected.index(candidate)+1}", path[-1],
                                 xytext=(6, 6), textcoords="offset points", fontsize=10,
                                 color=style.highlight, fontweight="bold")
-        score_ax.set_title("Simple evaluation", fontsize=14, fontweight="bold")
-        score_ax.set_xlabel("fitness (higher is better)")
+        score_ax.set_title("Closest-approach score", fontsize=14, fontweight="bold")
+        score_ax.set_xlabel("− min distance over trajectory")
         score_ax.set_yticks(range(count), [f"beetle {index}" for index in range(count)])
         score_ax.grid(axis="x", alpha=.18)
         if phase >= .38:
@@ -436,7 +477,7 @@ def _selection_movie(
         if phase < .38:
             message = "1  Simulate every candidate"
         elif phase < .62:
-            message = "2  Score final performance using straight-line goal proximity"
+            message = "2  Score the closest straight-line approach anywhere in the trajectory"
         else:
             message = "3  Better candidates are more likely to be selected as parents"
         message_artist.set_text(message)
@@ -449,7 +490,10 @@ def _selection_movie(
         "snapshot_index": config.snapshot_index,
         "selected_parent_ids": selected,
         "selection_source": "actual traced tournament selections for the next generation",
-        "fitness_explanation": "Euclidean proximity; higher scalar fitness is better",
+        "fitness_explanation": (
+            "fitness = negative minimum Euclidean goal distance over the complete trajectory; "
+            "this is not terminal-position distance"
+        ),
     }
 
 
@@ -477,9 +521,9 @@ def _transition_movie(
         if phase < .58:
             local = min(1.0, phase / .28)
             for candidate, path in enumerate(first_paths):
-                stop = max(1, int(local * (len(path) - 1)))
+                prefix = interpolated_trajectory_prefix(path, local * (len(path) - 1))
                 chosen = candidate in parent_ids and phase >= .28
-                ax.plot(path[:stop + 1, 0], path[:stop + 1, 1],
+                ax.plot(prefix[:, 0], prefix[:, 1],
                         color=style.highlight if chosen else style.population,
                         alpha=.95 if chosen else .24, lw=3 if chosen else 1.1)
                 if chosen:
@@ -499,15 +543,22 @@ def _transition_movie(
         else:
             local = min(1.0, (phase - .58) / .32)
             for path in second_paths:
-                stop = max(1, int(local * (len(path) - 1)))
-                ax.plot(path[:stop + 1, 0], path[:stop + 1, 1], color=style.trajectory,
+                prefix = interpolated_trajectory_prefix(path, local * (len(path) - 1))
+                ax.plot(prefix[:, 0], prefix[:, 1], color=style.trajectory,
                         alpha=.3, lw=1.2)
             child_path = data.candidate_rollout(second_index, operation.candidate_index).positions
-            stop = max(1, int(local * (len(child_path) - 1)))
-            ax.plot(child_path[:stop + 1, 0], child_path[:stop + 1, 1],
+            child_prefix = interpolated_trajectory_prefix(
+                child_path, local * (len(child_path) - 1)
+            )
+            ax.plot(child_prefix[:, 0], child_prefix[:, 1],
                     color=MUTATION_COLOR, lw=3, label="recorded offspring")
             ax.legend(loc="lower right", fontsize=10)
-            label = f"Generation {second.generation}: evaluate the new population"
+            label = f"Generation {second.generation}: evaluate the complete new population"
+            ax.text(.5, .10,
+                    "Highlighted: one recorded offspring example; every other offspring has its own recorded operations.",
+                    transform=ax.transAxes, ha="center", fontsize=9.5,
+                    bbox={"boxstyle": "round,pad=.35", "fc": "white", "ec": "#d3d8dd",
+                          "alpha": .94})
         ax.text(.5, .97, label, transform=ax.transAxes, ha="center", va="top", fontsize=14,
                 fontweight="bold", bbox={"boxstyle": "round,pad=.4", "fc": "white",
                                          "ec": "#c7cdd3", "alpha": .96})
@@ -531,56 +582,71 @@ def _multi_generation_movie(
     config: SceneConfig, data: PlaybackData, style: LectureStyle, *, show_families: bool = False
 ) -> tuple[animation.FuncAnimation, Any, dict[str, Any]]:
     count = min(config.max_candidates, data.config.population)
-    paths = {
-        (snapshot_index, candidate): data.candidate_rollout(snapshot_index, candidate).positions
+    rollouts = {
+        (snapshot_index, candidate): data.candidate_rollout(snapshot_index, candidate)
         for snapshot_index in range(len(data.snapshots)) for candidate in range(count)
     }
-    frames_per_snapshot = max(2, config.frame_count // len(data.snapshots))
-    schedule = [(snapshot_index, local)
-                for snapshot_index in range(len(data.snapshots))
-                for local in np.linspace(0, 1, frames_per_snapshot)]
-    schedule = schedule[:config.frame_count]
-    while len(schedule) < config.frame_count:
-        schedule.append((len(data.snapshots) - 1, 1.0))
+    paths = {key: rollout.positions for key, rollout in rollouts.items()}
+    schedule = _snapshot_schedule(config.frame_count, len(data.snapshots))
     family_counts: list[dict[str, int]] = []
     for snapshot_index in range(len(data.snapshots)):
-        counts = Counter(_route_family(paths[(snapshot_index, candidate)]) for candidate in range(count))
+        counts = Counter(
+            _route_family(paths[(snapshot_index, candidate)], data.world)
+            for candidate in range(count)
+        )
+        counts["physical goal successes"] = sum(
+            int(rollouts[(snapshot_index, candidate)].reached) for candidate in range(count)
+        )
         family_counts.append(dict(counts))
     figure, ax = plt.subplots(figsize=(style.canvas_width, style.canvas_height), facecolor="white")
-    figure.subplots_adjust(left=.08, right=.92, bottom=.11, top=.85)
+    figure.subplots_adjust(left=.08, right=.92, bottom=.13, top=.85)
     figure.suptitle(config.title, fontsize=18, fontweight="bold")
+    if show_families:
+        figure.text(.5, .045, "Opening color ≠ physical goal success.", ha="center",
+                    fontsize=10.5, fontweight="bold", color=style.text)
 
     def draw(frame_index: int):
         snapshot_index, fraction = schedule[frame_index]
         snapshot = data.snapshot(snapshot_index); ax.clear(); field(ax, data.world)
         for candidate in range(count):
             path = paths[(snapshot_index, candidate)]
-            step = int(round(fraction * data.world.steps))
-            prefix = trajectory_prefix(path, step)
-            family = _route_family(path)
+            prefix = interpolated_trajectory_prefix(path, fraction * (len(path) - 1))
+            family = _route_family(path, data.world)
             if show_families:
-                color = {"lower route": style.trajectory, "upper route": style.secondary}.get(
+                color = {"lower crossing": style.trajectory, "upper crossing": style.secondary}.get(
                     family, style.muted
                 )
-                alpha = .48 if family in ("lower route", "upper route") else .14
-                width = 1.6 if family in ("lower route", "upper route") else 1.0
+                alpha = .48 if family in ("lower crossing", "upper crossing") else .14
+                width = 1.6 if family in ("lower crossing", "upper crossing") else 1.0
             else:
                 color = style.population
                 alpha = .25; width = 1.2
             ax.plot(prefix[:, 0], prefix[:, 1], color=color, alpha=alpha, lw=width)
-        best = trajectory_prefix(data.best_rollout(snapshot_index).positions,
-                                 int(round(fraction * data.world.steps)))
-        ax.plot(best[:, 0], best[:, 1], color=style.highlight, lw=3, label="best so far")
+        current_index = data.selected_candidate(snapshot_index)
+        current_rollout = data.candidate_rollout(snapshot_index, current_index)
+        current = interpolated_trajectory_prefix(
+            current_rollout.positions, fraction * (len(current_rollout.positions) - 1)
+        )
+        ax.plot(current[:, 0], current[:, 1], color=style.text, lw=2.2,
+                label="current generation leader")
+        best_rollout = data.best_rollout(snapshot_index)
+        best = best_rollout.positions
+        ax.plot(best[:, 0], best[:, 1], color=style.highlight, lw=3, ls="--",
+                label="best-so-far by fitness")
         if show_families:
             ax.legend(handles=[
-                Line2D([0], [0], color=style.trajectory, lw=3, label="lower passage"),
-                Line2D([0], [0], color=style.secondary, lw=3, label="upper passage"),
-                Line2D([0], [0], color=style.highlight, lw=3, label="best so far"),
+                Line2D([0], [0], color=style.trajectory, lw=3, label="lower barrier crossing"),
+                Line2D([0], [0], color=style.secondary, lw=3, label="upper barrier crossing"),
+                Line2D([0], [0], color=style.text, lw=2.2,
+                       label="current generation leader"),
+                Line2D([0], [0], color=style.highlight, lw=3, ls="--",
+                       label="best-so-far by fitness"),
             ], loc="upper left", fontsize=10)
         else:
             ax.legend(loc="upper left", fontsize=10)
         status = (f"generation {snapshot.generation} · {snapshot.evaluations} evaluations\n"
-                  f"best fitness {snapshot.best_fitness:.2f}")
+                  f"current leader {snapshot.candidate_scores[current_index]:.2f} · "
+                  f"best-so-far {snapshot.best_fitness:.2f}")
         ax.text(.985, .035, status, transform=ax.transAxes, ha="right", va="bottom", fontsize=11,
                 bbox={"boxstyle": "round,pad=.4", "fc": "white", "ec": "#c7cdd3"})
         return ()
@@ -595,15 +661,25 @@ def _multi_generation_movie(
     }
 
 
-def _route_family(positions: np.ndarray) -> str:
-    crossing = positions[(positions[:, 0] >= 43) & (positions[:, 0] <= 57)]
-    if not len(crossing):
+def _barrier_crossing_y(positions: np.ndarray, barrier_x: float = 50.0) -> float | None:
+    """Interpolate the first left-to-right crossing of the barrier centre line."""
+    for first, second in zip(positions[:-1], positions[1:]):
+        if first[0] < barrier_x <= second[0] and second[0] > first[0]:
+            fraction = (barrier_x - first[0]) / (second[0] - first[0])
+            return float(first[1] + fraction * (second[1] - first[1]))
+    return None
+
+
+def _route_family(positions: np.ndarray, world=None) -> str:
+    """Classify a physical centre-line crossing, independently of goal success."""
+    y = _barrier_crossing_y(positions)
+    if y is None:
         return "did not cross"
-    y = float(crossing[np.argmin(np.abs(crossing[:, 0] - 50.0)), 1])
-    if 16 <= y <= 31:
-        return "lower route"
-    if 49 <= y <= 64:
-        return "upper route"
+    radius = 1.1 if world is None else float(world.radius)
+    if 18.0 + radius <= y <= 28.0 - radius:
+        return "lower crossing"
+    if 52.0 + radius <= y <= 62.0 - radius:
+        return "upper crossing"
     return "other crossing"
 
 
@@ -617,19 +693,16 @@ def _comparison_movie(
         (data.config.method, snapshot_index, candidate):
             data.candidate_rollout(snapshot_index, candidate).positions
         for data in ordered for snapshot_index in range(len(data.snapshots))
-        for candidate in range(count)
+        for candidate in range(data.config.population)
     }
-    frames_per_snapshot = max(2, config.frame_count // len(ordered[0].snapshots))
-    schedule = [(snapshot_index, local)
-                for snapshot_index in range(len(ordered[0].snapshots))
-                for local in np.linspace(0, 1, frames_per_snapshot)]
-    schedule = schedule[:config.frame_count]
-    while len(schedule) < config.frame_count:
-        schedule.append((len(ordered[0].snapshots) - 1, 1.0))
+    schedule = _snapshot_schedule(config.frame_count, len(ordered[0].snapshots))
     figure, axes = plt.subplots(1, 3, figsize=(style.canvas_width, style.canvas_height),
                                 facecolor="white", sharex=True, sharey=True)
     figure.subplots_adjust(left=.045, right=.985, bottom=.14, top=.82, wspace=.12)
     figure.suptitle(config.title, fontsize=18, fontweight="bold")
+    figure.text(.5, .055,
+                "Dashed black = best-so-far · GA population · random fresh batch · local incumbent + neighbors",
+                ha="center", fontsize=11.5, color=style.text)
 
     def draw(frame_index: int):
         snapshot_index, fraction = schedule[frame_index]
@@ -640,24 +713,37 @@ def _comparison_movie(
                 ax.set_ylabel("")
             snapshot = data.snapshot(snapshot_index)
             semantics = data.candidate_semantics(snapshot_index)
-            for candidate in range(count):
+            if data.config.method == "random":
+                candidates = tuple(range(count))
+            else:
+                ranked = [int(index) for index in data.ranked_candidates(snapshot_index)]
+                if data.config.method == "local":
+                    ranked = [0] + [index for index in ranked if index != 0]
+                candidates = tuple(ranked[:count])
+            for candidate in candidates:
                 path = paths[(data.config.method, snapshot_index, candidate)]
-                prefix = trajectory_prefix(path, int(round(fraction * data.world.steps)))
+                prefix = interpolated_trajectory_prefix(path, fraction * (len(path) - 1))
                 color = METHOD_COLORS[data.config.method]; alpha = .22; width = 1.0
                 if data.config.method == "local" and candidate == 0:
                     color = style.trajectory; alpha = .85; width = 2.2
+                if (data.config.method == "local" and snapshot_index > 0
+                        and candidate == semantics["proposed_candidate_index"]):
+                    color = style.highlight if semantics["accepted"] else style.collision
+                    alpha = .9; width = 2.2
                 ax.plot(prefix[:, 0], prefix[:, 1], color=color, alpha=alpha, lw=width)
-            best = trajectory_prefix(data.best_rollout(snapshot_index).positions,
-                                     int(round(fraction * data.world.steps)))
+            best_path = data.best_rollout(snapshot_index).positions
+            best = interpolated_trajectory_prefix(
+                best_path, fraction * (len(best_path) - 1)
+            )
             ax.plot(best[:, 0], best[:, 1], color=style.text, lw=2.5, ls="--")
             if data.config.method == "ga":
-                detail = "population + inheritance"
+                detail = "evolving population"
             elif data.config.method == "random":
                 detail = "independent new batch"
             elif snapshot_index == 0:
                 detail = "establish incumbent"
             else:
-                detail = "neighbor accepted" if semantics["accepted"] else "neighbors rejected"
+                detail = "best neighbor accepted" if semantics["accepted"] else "best neighbor rejected"
             ax.set_title(f"{METHOD_TITLES[data.config.method]}\n{detail}", fontsize=13,
                          fontweight="bold")
             ax.text(.5, .025, f"{data.iteration_kind} {snapshot.generation} · "
@@ -665,6 +751,11 @@ def _comparison_movie(
                     ha="center", va="bottom", fontsize=10,
                     bbox={"boxstyle": "round,pad=.25", "fc": "white", "ec": "#d3d8dd",
                           "alpha": .92})
+            if data.config.method == "local" and snapshot_index > 0:
+                ax.text(.5, .955, "blue: incumbent · green/red: proposed neighbor",
+                        transform=ax.transAxes, ha="center", va="top", fontsize=8.5,
+                        bbox={"boxstyle": "round,pad=.2", "fc": "white", "ec": "#d3d8dd",
+                              "alpha": .9})
         return ()
 
     movie = animation.FuncAnimation(figure, draw, frames=config.frame_count,
@@ -685,7 +776,7 @@ def _wrap_angle(angle: float) -> float:
     return (angle + pi) % (2 * pi) - pi
 
 
-def _corridor_reference_positions(data: PlaybackData) -> np.ndarray:
+def _corridor_reference_trace(data: PlaybackData):
     """Physics-valid explanatory route through map checkpoints; never used as optimizer input."""
     world = data.world
     x, y = world.start
@@ -704,7 +795,12 @@ def _corridor_reference_positions(data: PlaybackData) -> np.ndarray:
         nx = x + world.step_length * cos(heading); ny = y + world.step_length * sin(heading)
         if not world.blocked_scalar(x, y, nx, ny):
             x, y = nx, ny
-    return simulate(world, np.asarray(turns)).positions
+    return simulate(world, np.asarray(turns))
+
+
+def _corridor_reference_positions(data: PlaybackData) -> np.ndarray:
+    """Compatibility wrapper returning the reference trace positions."""
+    return _corridor_reference_trace(data).positions
 
 
 def _spiral_movie(
@@ -714,7 +810,8 @@ def _spiral_movie(
     final_index = len(data.snapshots) - 1
     paths = [data.candidate_rollout(final_index, candidate).positions for candidate in range(count)]
     best = data.best_rollout(final_index)
-    reference = _corridor_reference_positions(data)
+    reference_trace = _corridor_reference_trace(data)
+    reference = reference_trace.positions
     distances = np.linalg.norm(reference - np.asarray(data.world.goal), axis=1)
     increases = np.flatnonzero(np.diff(distances) > 1e-6)
     progress = np.linspace(0, 1, config.frame_count)
@@ -727,25 +824,38 @@ def _spiral_movie(
         for radius in (10, 20, 30, 40):
             ax.add_patch(patches.Circle(data.world.goal, radius, fill=False, ls=":", lw=1,
                                         ec="#d69a55", alpha=.35))
-        step = int(round(min(1.0, phase / .55) * data.world.steps))
+        episode_fraction = min(1.0, phase / .55)
         for path in paths:
-            prefix = trajectory_prefix(path, step)
+            prefix = interpolated_trajectory_prefix(
+                path, episode_fraction * (len(path) - 1)
+            )
             ax.plot(prefix[:, 0], prefix[:, 1], color="#d17a22", alpha=.18, lw=1.1)
-        best_prefix = trajectory_prefix(best.positions, step)
+        best_prefix = interpolated_trajectory_prefix(
+            best.positions, episode_fraction * (len(best.positions) - 1)
+        )
         ax.plot(best_prefix[:, 0], best_prefix[:, 1], color="#d17a22", lw=3,
-                label="best under Euclidean shaping")
+                label="best under closest-approach fitness")
         ax.plot([data.world.start[0], data.world.goal[0]],
                 [data.world.start[1], data.world.goal[1]], color="#d17a22", ls="--", lw=1.5,
                 alpha=.75, label="straight-line direction")
-        message = "Euclidean fitness rewards getting close—even across a wall."
+        message = r"Fitness = $-\min_t$ straight-line distance: one close moment can dominate."
         if phase >= .55:
             ax.plot(reference[:, 0], reference[:, 1], color=style.muted, lw=2, ls="--",
-                    alpha=.8, label="feasible corridor reference")
+                    alpha=.8, label=("physics-valid corridor reference" +
+                                     (" (reaches goal)" if reference_trace.reached
+                                      else " (incomplete)")))
             if len(increases):
                 for index in increases:
                     ax.plot(reference[index:index + 2, 0], reference[index:index + 2, 1],
                             color=MUTATION_COLOR, lw=4)
-            message = "A feasible route must sometimes move farther from the goal."
+                first = int(increases[0])
+                ax.annotate("detour segment begins:\ndistance initially increases",
+                            reference[first], xytext=(24, -55), textcoords="offset points",
+                            fontsize=10.5, color=MUTATION_COLOR,
+                            arrowprops={"arrowstyle": "->", "color": MUTATION_COLOR},
+                            bbox={"boxstyle": "round,pad=.3", "fc": "white",
+                                  "ec": MUTATION_COLOR, "alpha": .95})
+            message = "A physically valid corridor detour can first move farther from the goal."
         if phase >= .78:
             nearest = int(np.argmin(np.linalg.norm(best.positions - np.asarray(data.world.goal), axis=1)))
             ax.annotate("looks close\nbut is separated by a wall", best.positions[nearest],
@@ -755,7 +865,12 @@ def _spiral_movie(
         ax.text(.5, .97, message, transform=ax.transAxes, ha="center", va="top", fontsize=13,
                 fontweight="bold", bbox={"boxstyle": "round,pad=.4", "fc": "white",
                                          "ec": "#c7cdd3", "alpha": .96})
-        ax.legend(loc="upper left", bbox_to_anchor=(.01, .88), fontsize=9, framealpha=.95)
+        ax.text(.5, .012,
+                "One deterministic failed GA run illustrates the pressure; it does not prove GA cannot solve this map.",
+                transform=ax.transAxes, ha="center", va="bottom", fontsize=9,
+                bbox={"boxstyle": "round,pad=.25", "fc": "white", "ec": "#d3d8dd",
+                      "alpha": .94})
+        ax.legend(loc="upper left", bbox_to_anchor=(.01, .86), fontsize=9, framealpha=.95)
         return ()
 
     movie = animation.FuncAnimation(figure, draw, frames=config.frame_count,
@@ -768,8 +883,16 @@ def _spiral_movie(
         "best_minimum_euclidean_distance": float(np.min(
             np.linalg.norm(best.positions - np.asarray(data.world.goal), axis=1)
         )),
+        "fitness_definition": "negative minimum Euclidean distance over the full trajectory",
+        "fitness_is_final_position_distance": False,
         "corridor_reference": "deterministic checkpoint-following trajectory for explanation only",
         "corridor_has_distance_increase": bool(len(increases)),
+        "corridor_reference_reached_goal": reference_trace.reached,
+        "corridor_reference_collisions": reference_trace.collisions,
+        "interpretation_scope": (
+            "illustrates selection pressure in one deterministic run; does not establish "
+            "general optimizer impossibility"
+        ),
     }
 
 
@@ -835,6 +958,7 @@ def export_scene(
             "canvas_inches": [style.canvas_width, style.canvas_height],
             "dpi": 100,
             "canvas_pixels": [int(style.canvas_width * 100), int(style.canvas_height * 100)],
+            "artifact_sha256": _sha256(output_path),
         },
         "rendering_launches_optimizer": False,
     }

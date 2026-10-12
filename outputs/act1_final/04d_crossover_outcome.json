@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "scene_identifier": "04d_crossover_outcome",
+  "source_type": "synthetic illustrative crossover with simulator-derived trajectories",
+  "illustrative": true,
+  "world": {
+    "width": 88,
+    "height": 64,
+    "start": [
+      12,
+      32
+    ],
+    "goal": [
+      76,
+      33
+    ],
+    "steps": 8,
+    "step_length": 8,
+    "max_turn_radians": 0.4188790204786391
+  },
+  "operation": {
+    "cut_index": 4,
+    "mutated_indices": [
+      5
+    ],
+    "parent_a_degrees": [
+      6.0,
+      10.0,
+      -2.0,
+      -8.0,
+      4.0,
+      4.0,
+      -6.0,
+      -5.0
+    ],
+    "parent_b_degrees": [
+      -6.0,
+      -10.0,
+      4.0,
+      10.0,
+      -2.0,
+      -4.0,
+      6.0,
+      5.0
+    ],
+    "child_before_mutation_degrees": [
+      6.0,
+      10.0,
+      -2.0,
+      -8.0,
+      -2.0,
+      -4.0,
+      6.0,
+      5.0
+    ],
+    "final_child_degrees": [
+      6.0,
+      10.0,
+      -2.0,
+      -8.0,
+      -2.0,
+      -22.0,
+      6.0,
+      5.0
+    ],
+    "genomes_radians": {
+      "parent_a": [
+        0.10471975511965978,
+        0.17453292519943295,
+        -0.03490658503988659,
+        -0.13962634015954636,
+        0.06981317007977318,
+        0.06981317007977318,
+        -0.10471975511965978,
+        -0.08726646259971647
+      ],
+      "parent_b": [
+        -0.10471975511965978,
+        -0.17453292519943295,
+        0.06981317007977318,
+        0.17453292519943295,
+        -0.03490658503988659,
+        -0.06981317007977318,
+        0.10471975511965978,
+        0.08726646259971647
+      ],
+      "child_before_mutation": [
+        0.10471975511965978,
+        0.17453292519943295,
+        -0.03490658503988659,
+        -0.13962634015954636,
+        -0.03490658503988659,
+        -0.06981317007977318,
+        0.10471975511965978,
+        0.08726646259971647
+      ],
+      "final_child": [
+        0.10471975511965978,
+        0.17453292519943295,
+        -0.03490658503988659,
+        -0.13962634015954636,
+        -0.03490658503988659,
+        -0.3839724354387525,
+        0.10471975511965978,
+        0.08726646259971647
+      ]
+    }
+  },
+  "simulation": {
+    "parent_a": {
+      "reached_goal": false,
+      "collisions": 0,
+      "trajectory_points": 9
+    },
+    "parent_b": {
+      "reached_goal": false,
+      "collisions": 0,
+      "trajectory_points": 9
+    },
+    "child_before_mutation": {
+      "reached_goal": false,
+      "collisions": 0,
+      "trajectory_points": 9
+    },
+    "final_child": {
+      "reached_goal": true,
+      "collisions": 0,
+      "trajectory_points": 9
+    }
+  },
+  "render": {
+    "canvas_pixels": [
+      1920,
+      1080
+    ],
+    "png_sha256": "f3673ce03b3f93367c4c29d004635f99c11c80fa71bc1fd2c97af973db6839ec",
+    "svg_sha256": "2f0d81b7d8d045063f1b38b280b2a916b1acbe9cbcd86c4afd5406a1d295c48b"
+  },
+  "rendering_launches_optimizer": false
+}

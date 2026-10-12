@@ -1,5 +1,5 @@
 from .environment import World, Rollout, EpisodeTrace, evaluate, simulate
-from .fitness import (FitnessPolicy,FitnessResult,LegacyFitness,EuclideanFitness,SparseGoalFitness,
+from .fitness import (FitnessPolicy,FitnessResult,LegacyFitness,EuclideanFitness,FinalEuclideanFitness,SparseGoalFitness,
                       GeodesicFitness,SuccessDistanceFitness,CollisionPenaltyFitness,
                       CheckpointFitness,SmoothnessFitness,FITNESS_NAMES,make_fitness)
 from .geometry import Rectangle
@@ -16,7 +16,7 @@ from .experiment import run_method
 __all__ = [
     'World', 'Rectangle', 'MapDefinition', 'DEFAULT_MAP', 'EpisodeTrace', 'Rollout',
     'simulate', 'evaluate', 'FitnessPolicy', 'FitnessResult', 'LegacyFitness',
-    'EuclideanFitness', 'SparseGoalFitness', 'GeodesicFitness', 'SuccessDistanceFitness',
+    'EuclideanFitness', 'FinalEuclideanFitness', 'SparseGoalFitness', 'GeodesicFitness', 'SuccessDistanceFitness',
     'CollisionPenaltyFitness', 'CheckpointFitness', 'SmoothnessFitness',
     'FITNESS_NAMES', 'make_fitness', 'MAPS', 'get_map',
     'OutcomeMetrics', 'outcome_metrics',

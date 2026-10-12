@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "source": "already-rendered GIF frames; no optimizer or simulation launched",
+  "inspected_frames": {
+    "01_beetle_model": {
+      "first": 0,
+      "middle": 23,
+      "final": 45,
+      "frame_count": 46
+    },
+    "02_population": {
+      "first": 0,
+      "middle": 33,
+      "final": 65,
+      "frame_count": 66
+    },
+    "03_evaluation_selection": {
+      "first": 0,
+      "middle": 13,
+      "final": 26,
+      "frame_count": 27
+    },
+    "05_one_generation_transition": {
+      "first": 0,
+      "middle": 25,
+      "final": 49,
+      "frame_count": 50
+    },
+    "06_simple_evolution": {
+      "first": 0,
+      "middle": 59,
+      "final": 118,
+      "frame_count": 119
+    },
+    "07_two_bridges_evolution": {
+      "first": 0,
+      "middle": 53,
+      "final": 105,
+      "frame_count": 106
+    },
+    "08_method_comparison": {
+      "first": 0,
+      "middle": 63,
+      "final": 125,
+      "frame_count": 126
+    },
+    "09_spiral_fitness_problem": {
+      "first": 0,
+      "middle": 23,
+      "final": 45,
+      "frame_count": 46
+    }
+  },
+  "artifact_sha256": "b48dd80f0887121d0f3fe2f4cc5cd9d6f4371a82ff83badd4c4713e6baa4727a",
+  "rendering_launches_optimizer": false
+}

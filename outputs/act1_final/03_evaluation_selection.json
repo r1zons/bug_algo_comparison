@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "03_evaluation_selection",
+    "kind": "evaluation_selection",
+    "title": "Evaluate, then select parents",
+    "duration_seconds": 5.5,
+    "fps": 12,
+    "output_format": "gif",
+    "snapshot_index": 0,
+    "candidate_index": null,
+    "candidate_selector": "best_by_fitness",
+    "max_candidates": 12,
+    "show_checkpoint_markers": false,
+    "data_path": "examples/act1/open_ga.npz",
+    "operation_log_path": "examples/act1/open_ga_operations.json",
+    "comparison_data_paths": null,
+    "educational_message": "The introductory score uses the closest straight-line approach over the complete trajectory."
+  },
+  "style": {
+    "canvas_width": 12.8,
+    "canvas_height": 7.2,
+    "background": "white",
+    "text": "#20262d",
+    "trajectory": "#2268a8",
+    "population": "#6f8faa",
+    "highlight": "#168579",
+    "collision": "#c43d3d",
+    "secondary": "#7655a6",
+    "muted": "#8a96a3",
+    "font_family": "DejaVu Sans"
+  },
+  "source_playback": {
+    "map_name": "open_field",
+    "method": "ga",
+    "fitness_name": "euclidean",
+    "seed": 12,
+    "generations": 2,
+    "population": 12,
+    "collision_penalty": 0.5,
+    "smoothness_weight": 1.0
+  },
+  "source_data_paths": {
+    "primary": "examples/act1/open_ga.npz",
+    "operation_log": "examples/act1/open_ga_operations.json"
+  },
+  "source_details": {
+    "illustrative": false,
+    "snapshot_index": 0,
+    "selected_parent_ids": [
+      1,
+      7,
+      8
+    ],
+    "selection_source": "actual traced tournament selections for the next generation",
+    "fitness_explanation": "fitness = negative minimum Euclidean goal distance over the complete trajectory; this is not terminal-position distance"
+  },
+  "export": {
+    "renderer": "buglab.scenes",
+    "format": "gif",
+    "fps": 12,
+    "frame_count": 66,
+    "canvas_inches": [
+      12.8,
+      7.2
+    ],
+    "dpi": 100,
+    "canvas_pixels": [
+      1280,
+      720
+    ],
+    "artifact_sha256": "4fca851bc2286f79c969241eae3a2b92c53dc0e6b02912ef3bcf4674b73e61b9"
+  },
+  "rendering_launches_optimizer": false
+}
