@@ -8,5 +8,8 @@ outputs/*
 !outputs/pilot_scenes/
 !outputs/pilot_scenes/*.gif
 !outputs/pilot_scenes/*.json
+!outputs/act1/
+!outputs/act1/*.gif
+!outputs/act1/*.json
 outputs_trial/
 .DS_Store

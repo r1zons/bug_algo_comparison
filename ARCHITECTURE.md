@@ -124,6 +124,8 @@ The benchmark layer separates four identities: the UI-selected candidate, the be
 
 The JSON manifest `pilot_scenes.json` defines the reviewed pilot set. Every export writes a metadata sidecar containing the scene/style configuration, playback identity, genome digest or synthetic radian values, and an explicit `rendering_launches_optimizer: false` statement. GIF uses Pillow; MP4 is optional and requires an available `ffmpeg` writer.
 
+The final lecture-only Act I package is declared in `act1_scenes.json`. `python -m buglab.act1` is the explicit experiment-preparation boundary: it runs the fixed seeded configurations and saves compact playback files plus bounded operation logs under `examples/act1/`. `python -m buglab.scenes` only loads those records, replays deterministic physics, and renders the nine scenes. It never constructs an optimizer. Scene 09's checkpoint-following path is labeled as an explanatory, physics-valid reference and is not optimizer output or reward input.
+
 ## Интерпретация начального эксперимента
 
 Предустановленная карта содержит два препятствия. Запуск `population=64, generations=65` даёт 4 160 проверок геномов на метод и seed. В трёх тестовых seeds успех обнаружен у GA в 3/3, у LocalSearch в 3/3, у RandomSearch в 1/3. В данном запуске LocalSearch часто находил успешную траекторию раньше GA. Это **демонстрация механики**, а не статистически значимый вывод.

@@ -144,3 +144,14 @@ python -m buglab.scenes \
 Scene speed, duration, deterministic candidate selection, output format, and checkpoint-marker visibility are controlled in `pilot_scenes.json`. GIF is always supported; MP4 is accepted when Matplotlib can find `ffmpeg`. Each animation has a JSON sidecar with scene configuration and source provenance. See [ANIMATION_PLAN.md](ANIMATION_PLAN.md) for the complete Act I storyboard.
 
 The notebook checkbox is labeled **Show checkpoint markers (display only)** and defaults off. It changes only the renderer; selecting checkpoint fitness remains a separate explicit experiment setting.
+
+## Final Act I lecture package
+
+The reviewed Act I sequence contains nine focused 16:9 GIFs covering the beetle model, population diversity, selection, crossover and mutation, evolution, optimizer semantics, and the spiral-map limitation of straight-line fitness. Prepare source experiments explicitly, then render only from saved data:
+
+```bash
+python -m buglab.act1 --output examples/act1
+python -m buglab.scenes --manifest act1_scenes.json --output outputs/act1
+```
+
+See [ACT1_ANIMATION_INDEX.md](ACT1_ANIMATION_INDEX.md) for the lecture order, source of every scene, reproduction details, and educational limitations. The source manifest is `act1_scenes.json`; each GIF has a JSON provenance sidecar.

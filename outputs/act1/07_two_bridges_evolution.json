@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "07_two_bridges_evolution",
+    "kind": "route_families",
+    "title": "A population can explore different route families",
+    "duration_seconds": 10.0,
+    "fps": 6,
+    "output_format": "gif",
+    "snapshot_index": 0,
+    "candidate_index": null,
+    "candidate_selector": "best_by_fitness",
+    "max_candidates": 16,
+    "show_checkpoint_markers": false,
+    "data_path": "examples/act1/bridges_ga.npz",
+    "operation_log_path": null,
+    "comparison_data_paths": null,
+    "educational_message": "A richer map permits qualitatively different useful routes."
+  },
+  "style": {
+    "canvas_width": 12.8,
+    "canvas_height": 7.2,
+    "background": "white",
+    "text": "#20262d",
+    "trajectory": "#2268a8",
+    "population": "#6f8faa",
+    "highlight": "#168579",
+    "collision": "#c43d3d",
+    "secondary": "#7655a6",
+    "muted": "#8a96a3",
+    "font_family": "DejaVu Sans"
+  },
+  "source_playback": {
+    "map_name": "two_bridges",
+    "method": "ga",
+    "fitness_name": "euclidean",
+    "seed": 4,
+    "generations": 14,
+    "population": 16,
+    "collision_penalty": 0.5,
+    "smoothness_weight": 1.0
+  },
+  "source_data_paths": {
+    "primary": "examples/act1/bridges_ga.npz"
+  },
+  "source_details": {
+    "illustrative": false,
+    "generations_shown": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "best_fitness_by_generation": [
+      -23.058055730280127,
+      -6.409805613973734,
+      -1.4934718655453996,
+      -1.4934718655453996,
+      -1.4934718655453996,
+      -1.4934718655453996,
+      -1.1554020116549422,
+      -1.1554020116549422,
+      -1.1554020116549422,
+      -1.1554020116549422,
+      -1.1554020116549422,
+      -1.1554020116549422,
+      -1.1554020116549422,
+      -1.1554020116549422
+    ],
+    "route_family_counts": [
+      {
+        "other crossing": 10,
+        "upper route": 2,
+        "did not cross": 1,
+        "lower route": 3
+      },
+      {
+        "lower route": 4,
+        "other crossing": 8,
+        "upper route": 3,
+        "did not cross": 1
+      },
+      {
+        "lower route": 6,
+        "other crossing": 7,
+        "did not cross": 3
+      },
+      {
+        "lower route": 10,
+        "other crossing": 5,
+        "did not cross": 1
+      },
+      {
+        "lower route": 12,
+        "did not cross": 1,
+        "other crossing": 3
+      },
+      {
+        "lower route": 7,
+        "other crossing": 9
+      },
+      {
+        "lower route": 9,
+        "other crossing": 7
+      },
+      {
+        "lower route": 14,
+        "other crossing": 2
+      },
+      {
+        "lower route": 11,
+        "other crossing": 5
+      },
+      {
+        "lower route": 11,
+        "other crossing": 3,
+        "upper route": 1,
+        "did not cross": 1
+      },
+      {
+        "lower route": 12,
+        "other crossing": 4
+      },
+      {
+        "lower route": 8,
+        "other crossing": 7,
+        "upper route": 1
+      },
+      {
+        "lower route": 11,
+        "other crossing": 4,
+        "upper route": 1
+      },
+      {
+        "lower route": 11,
+        "other crossing": 4,
+        "upper route": 1
+      }
+    ]
+  },
+  "export": {
+    "renderer": "buglab.scenes",
+    "format": "gif",
+    "fps": 6,
+    "frame_count": 60,
+    "canvas_inches": [
+      12.8,
+      7.2
+    ],
+    "dpi": 100,
+    "canvas_pixels": [
+      1280,
+      720
+    ]
+  },
+  "rendering_launches_optimizer": false
+}

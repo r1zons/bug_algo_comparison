@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "09_spiral_fitness_problem",
+    "kind": "spiral_limitation",
+    "title": "When closer to the goal is not better",
+    "duration_seconds": 7.0,
+    "fps": 6,
+    "output_format": "gif",
+    "snapshot_index": 0,
+    "candidate_index": null,
+    "candidate_selector": "best_by_fitness",
+    "max_candidates": 12,
+    "show_checkpoint_markers": false,
+    "data_path": "examples/act1/spiral_ga.npz",
+    "operation_log_path": null,
+    "comparison_data_paths": null,
+    "educational_message": "Straight-line distance can reward an unreachable approach through a wall."
+  },
+  "style": {
+    "canvas_width": 12.8,
+    "canvas_height": 7.2,
+    "background": "white",
+    "text": "#20262d",
+    "trajectory": "#2268a8",
+    "population": "#6f8faa",
+    "highlight": "#168579",
+    "collision": "#c43d3d",
+    "secondary": "#7655a6",
+    "muted": "#8a96a3",
+    "font_family": "DejaVu Sans"
+  },
+  "source_playback": {
+    "map_name": "spiral",
+    "method": "ga",
+    "fitness_name": "euclidean",
+    "seed": 0,
+    "generations": 10,
+    "population": 16,
+    "collision_penalty": 0.5,
+    "smoothness_weight": 1.0
+  },
+  "source_data_paths": {
+    "primary": "examples/act1/spiral_ga.npz"
+  },
+  "source_details": {
+    "illustrative": false,
+    "snapshot_index": 9,
+    "actual_euclidean_candidates": 12,
+    "run_goal_reached": false,
+    "best_minimum_euclidean_distance": 19.107720914601362,
+    "corridor_reference": "deterministic checkpoint-following trajectory for explanation only",
+    "corridor_has_distance_increase": true
+  },
+  "export": {
+    "renderer": "buglab.scenes",
+    "format": "gif",
+    "fps": 6,
+    "frame_count": 42,
+    "canvas_inches": [
+      12.8,
+      7.2
+    ],
+    "dpi": 100,
+    "canvas_pixels": [
+      1280,
+      720
+    ]
+  },
+  "rendering_launches_optimizer": false
+}

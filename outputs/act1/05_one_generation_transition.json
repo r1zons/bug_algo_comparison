@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "05_one_generation_transition",
+    "kind": "generation_transition",
+    "title": "One generation update, step by step",
+    "duration_seconds": 9.0,
+    "fps": 6,
+    "output_format": "gif",
+    "snapshot_index": 0,
+    "candidate_index": null,
+    "candidate_selector": "best_by_fitness",
+    "max_candidates": 12,
+    "show_checkpoint_markers": false,
+    "data_path": "examples/act1/simple_ga.npz",
+    "operation_log_path": "examples/act1/simple_ga_operations.json",
+    "comparison_data_paths": null,
+    "educational_message": "One update evaluates a population, selects parents, creates offspring, and evaluates the next generation."
+  },
+  "style": {
+    "canvas_width": 12.8,
+    "canvas_height": 7.2,
+    "background": "white",
+    "text": "#20262d",
+    "trajectory": "#2268a8",
+    "population": "#6f8faa",
+    "highlight": "#168579",
+    "collision": "#c43d3d",
+    "secondary": "#7655a6",
+    "muted": "#8a96a3",
+    "font_family": "DejaVu Sans"
+  },
+  "source_playback": {
+    "map_name": "default",
+    "method": "ga",
+    "fitness_name": "euclidean",
+    "seed": 0,
+    "generations": 12,
+    "population": 16,
+    "collision_penalty": 0.5,
+    "smoothness_weight": 1.0
+  },
+  "source_data_paths": {
+    "primary": "examples/act1/simple_ga.npz",
+    "operation_log": "examples/act1/simple_ga_operations.json"
+  },
+  "source_details": {
+    "illustrative": false,
+    "from_generation": 0,
+    "to_generation": 1,
+    "operation_id": 18,
+    "parent_ids": [
+      6,
+      4
+    ],
+    "child_candidate_index": 2,
+    "crossover_cut": 75,
+    "mutated_indices": [
+      4,
+      10,
+      14,
+      27,
+      29,
+      30,
+      31,
+      34,
+      49,
+      53,
+      54,
+      70,
+      82,
+      89
+    ]
+  },
+  "export": {
+    "renderer": "buglab.scenes",
+    "format": "gif",
+    "fps": 6,
+    "frame_count": 54,
+    "canvas_inches": [
+      12.8,
+      7.2
+    ],
+    "dpi": 100,
+    "canvas_pixels": [
+      1280,
+      720
+    ]
+  },
+  "rendering_launches_optimizer": false
+}

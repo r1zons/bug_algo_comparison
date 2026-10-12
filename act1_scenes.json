@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "package": "Bug Evolution Lab — Act I",
+  "scenes": [
+    {
+      "name": "01_beetle_model",
+      "kind": "single_beetle",
+      "title": "A genome becomes movement",
+      "educational_message": "A genome is a sequence of turn commands that produces a trajectory.",
+      "duration_seconds": 6.0,
+      "fps": 6,
+      "data_path": "examples/act1/open_random.npz",
+      "candidate_selector": "best_by_fitness",
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "02_population",
+      "kind": "initial_population",
+      "title": "Different genomes explore different paths",
+      "educational_message": "Different genomes produce different trajectories under identical physics.",
+      "duration_seconds": 5.5,
+      "fps": 6,
+      "data_path": "examples/act1/open_random.npz",
+      "max_candidates": 12,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "03_evaluation_selection",
+      "kind": "evaluation_selection",
+      "title": "Evaluate, then select parents",
+      "educational_message": "Better evaluated candidates are more likely to become parents.",
+      "duration_seconds": 5.5,
+      "fps": 6,
+      "data_path": "examples/act1/open_ga.npz",
+      "operation_log_path": "examples/act1/open_ga_operations.json",
+      "max_candidates": 12,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "04_crossover_mutation",
+      "kind": "synthetic_crossover",
+      "title": "Crossover combines programs; mutation changes commands",
+      "educational_message": "Offspring combine parent command sequences and receive small random changes.",
+      "duration_seconds": 7.0,
+      "fps": 6,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "05_one_generation_transition",
+      "kind": "generation_transition",
+      "title": "One generation update, step by step",
+      "educational_message": "One update evaluates a population, selects parents, creates offspring, and evaluates the next generation.",
+      "duration_seconds": 9.0,
+      "fps": 6,
+      "data_path": "examples/act1/simple_ga.npz",
+      "operation_log_path": "examples/act1/simple_ga_operations.json",
+      "max_candidates": 12,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "06_simple_evolution",
+      "kind": "multi_generation",
+      "title": "Repeated generations improve the search",
+      "educational_message": "Repeating evaluation and variation can gradually improve the population.",
+      "duration_seconds": 12.0,
+      "fps": 6,
+      "data_path": "examples/act1/simple_ga.npz",
+      "max_candidates": 10,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "07_two_bridges_evolution",
+      "kind": "route_families",
+      "title": "A population can explore different route families",
+      "educational_message": "A richer map permits qualitatively different useful routes.",
+      "duration_seconds": 10.0,
+      "fps": 6,
+      "data_path": "examples/act1/bridges_ga.npz",
+      "max_candidates": 16,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "08_method_comparison",
+      "kind": "method_comparison",
+      "title": "Three search strategies, one shared problem",
+      "educational_message": "GA, random search, and local search explore the same problem differently.",
+      "duration_seconds": 12.0,
+      "fps": 6,
+      "comparison_data_paths": {
+        "ga": "examples/act1/bridges_ga.npz",
+        "random": "examples/act1/bridges_random.npz",
+        "local": "examples/act1/bridges_local.npz"
+      },
+      "max_candidates": 8,
+      "show_checkpoint_markers": false
+    },
+    {
+      "name": "09_spiral_fitness_problem",
+      "kind": "spiral_limitation",
+      "title": "When closer to the goal is not better",
+      "educational_message": "Straight-line distance can reward an unreachable approach through a wall.",
+      "duration_seconds": 7.0,
+      "fps": 6,
+      "data_path": "examples/act1/spiral_ga.npz",
+      "max_candidates": 12,
+      "show_checkpoint_markers": false
+    }
+  ]
+}
