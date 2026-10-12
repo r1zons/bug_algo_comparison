@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "purpose": "Deterministic sources for Act I method and distance-barrier refinements",
+  "optimization_is_explicit": true,
+  "rendering_uses_only_saved_optimizer_data": true,
+  "records": [
+    {
+      "name": "bridges_ga_operations",
+      "source_playback": "examples/act1/bridges_ga.npz",
+      "source_playback_sha256": "2870ac655f629a6e51acf37e1ed7d20f8a360b239d8dde30f0ea99ca8839ab7a",
+      "operation_log": "bridges_ga_operations.json",
+      "operation_log_sha256": "ba5d8ec7a58f412468edfbd0880f7e5c256aef488571ccba165513ce0d04578d",
+      "seed": 4,
+      "evaluations": 224,
+      "trace_does_not_change_candidates": true
+    },
+    {
+      "name": "rectangular_spiral_ga",
+      "data_path": "rectangular_spiral_ga.npz",
+      "data_sha256": "3952b1b24e30776935ef07b6fb42868eb279880d0042cf43f761a791a85dd944",
+      "config": {
+        "map_name": "rectangular_spiral",
+        "method": "ga",
+        "fitness_name": "euclidean",
+        "seed": 0,
+        "generations": 14,
+        "population": 16,
+        "collision_penalty": 0.5,
+        "smoothness_weight": 1.0
+      },
+      "evaluations": 224,
+      "physical_success": false,
+      "first_success_evaluation": null,
+      "reference_genome_sha256": "4710006b00c0290e81d46753513fff0df7fd424b0e93a87e2505e53aa31ee12a",
+      "reference_reached_goal": true,
+      "reference_collisions": 0,
+      "reference_reached_at": 76,
+      "distance_barrier": {
+        "starting_distance": 15.264337522473747,
+        "required_distance": 47.099999999999994,
+        "delta": 31.83566247752625,
+        "separator_x": 73.1,
+        "justification": "The radius-inflated lower wall touches the left boundary, so every start-to-goal centre path must pass its right edge."
+      },
+      "reference_is_optimizer_input": false
+    },
+    {
+      "name": "bridges_random",
+      "reviewed_data_path": "examples/act1/bridges_random.npz",
+      "data_sha256": "a87883d64edf041294ef133effabbeb14450204dd9422239bca971e9618c9adf"
+    },
+    {
+      "name": "bridges_local",
+      "reviewed_data_path": "examples/act1/bridges_local.npz",
+      "data_sha256": "1b43070d9c279c1e25d750bf5d5d31d7bade4f85e478d42abfae8b5a9aadd64d"
+    },
+    {
+      "name": "bridges_ga",
+      "reviewed_data_path": "examples/act1/bridges_ga.npz",
+      "data_sha256": "2870ac655f629a6e51acf37e1ed7d20f8a360b239d8dde30f0ea99ca8839ab7a"
+    }
+  ]
+}

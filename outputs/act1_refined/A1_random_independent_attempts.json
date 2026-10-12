@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "A1_random_independent_attempts",
+    "kind": "random_mechanics",
+    "duration_seconds": 10,
+    "fps": 12,
+    "educational_message": "Random Search samples a new complete open-loop genome for every candidate; best-so-far is reporting only.",
+    "data_path": "examples/act1/bridges_random.npz",
+    "operation_log_path": null,
+    "comparison_data_paths": null,
+    "snapshot_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "max_candidates": 8
+  },
+  "source_data_paths": {
+    "playback": "examples/act1/bridges_random.npz"
+  },
+  "source_data_sha256": {
+    "playback": "a87883d64edf041294ef133effabbeb14450204dd9422239bca971e9618c9adf"
+  },
+  "source_details": {
+    "method_semantics": "Every batch is sampled independently from Normal(0, init_sigma), clipped to turn bounds; tell() retains no genome for generation. Best-so-far is reporting only.",
+    "initial_heading": "The simulator initially points directly from start to goal.",
+    "init_sigma_radians": 0.11,
+    "candidate_records": [
+      {
+        "snapshot_index": 0,
+        "candidate_index": 0,
+        "score": -48.65699610853796,
+        "genome_sha256": "bb300d1f0a18cee7fc4e892e18ed6e6576c984a51a79e1c642e0f68a0338cd9a"
+      },
+      {
+        "snapshot_index": 1,
+        "candidate_index": 0,
+        "score": -48.33582691819113,
+        "genome_sha256": "c4d799b23886520e9e7ad0ea8551b1f4da9d371ea7c195f538bf63a8f3614ac4"
+      },
+      {
+        "snapshot_index": 2,
+        "candidate_index": 0,
+        "score": -49.6827020028765,
+        "genome_sha256": "f02bd82b762d4889e2701e398295a33b395d3c7aa93f209b5bc91310e5f5d162"
+      },
+      {
+        "snapshot_index": 3,
+        "candidate_index": 0,
+        "score": -48.112154678269455,
+        "genome_sha256": "e888c0061ebbc8fdc0929e1346aaf8121a52cff731dbc24a3a3a004c6a49c7fc"
+      }
+    ]
+  },
+  "export": {
+    "renderer": "buglab.refined_scenes",
+    "fps": 12,
+    "configured_frame_count": 120,
+    "canvas_pixels": [
+      1280,
+      720
+    ],
+    "gif_sha256": "51498f5f2c277de184f18fc770c1afda7aa4b06fa4ec475a46f4369388f3836f",
+    "poster_sha256": "0a1b2fb94441689640d2c4f28e7de2e19d5651b39ce00b48241813a2bf06caef"
+  },
+  "rendering_launches_optimizer": false
+}

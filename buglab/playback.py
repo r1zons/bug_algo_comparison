@@ -217,6 +217,8 @@ class PlaybackData:
                 "incumbent_after_candidate_index": best_index,
             }
         incumbent_score = float(snapshot.candidate_scores[0])
+        best_neighbor = int(np.argmax(snapshot.candidate_scores[1:])) + 1
+        best_neighbor_score = float(snapshot.candidate_scores[best_neighbor])
         proposal_score = float(snapshot.candidate_scores[best_index])
         accepted = best_index != 0 and proposal_score > incumbent_score
         return {
@@ -224,6 +226,8 @@ class PlaybackData:
             "kind": "incumbent_and_neighbors",
             "incumbent_before_candidate_index": 0,
             "neighbor_candidate_indices": tuple(range(1, len(snapshot.candidate_genomes))),
+            "best_neighbor_candidate_index": best_neighbor,
+            "best_neighbor_score": best_neighbor_score,
             "proposed_candidate_index": best_index,
             "accepted": accepted,
             "incumbent_after_candidate_index": best_index if accepted else 0,

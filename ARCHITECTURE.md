@@ -67,7 +67,9 @@ The historical `World(fitness_mode=...)`, `evaluate(world, genome)`, CLI argumen
 
 ## Task 2 maps, rewards, and outcome comparisons
 
-Named presets are `default`, `open_field`, `two_bridges`, `spiral`, `narrow_gate`, and `dead_end`. Each preset has a deterministic reference corridor that is reachable under the default 90-step horizon, 1.55 step length, 0.42-radian maximum relative turn, beetle radius, and segment collision rules. These references validate the task; optimizers do not receive them.
+Named presets are `default`, `open_field`, `two_bridges`, `spiral`, `rectangular_spiral`, `narrow_gate`, and `dead_end`. Each preset has a deterministic reference corridor that is reachable under the default 90-step horizon, 1.55 step length, 0.42-radian maximum relative turn, beetle radius, and segment collision rules. These references validate the task; optimizers do not receive them.
+
+`rectangular_spiral` is an educational distance-barrier map, while the historical square `spiral` and its datasets remain unchanged. Its lower wall joins the left boundary. After inflating that wall by the beetle radius, every continuous collision-free path from the lower start component to the upper goal component must pass the wall's right edge. The resulting lower bound on goal distance is strictly larger than the start distance. `rectangular_spiral_distance_barrier()` records that analytic certificate; a separately stored open-loop genome verifies executability with the real dynamics. Neither item is available to an optimizer.
 
 Named fitness strategies are `sparse_goal`, `euclidean`, `final_euclidean`, `success_distance`, `collision_penalty`, `checkpoints`, `geodesic`, and `smoothness`. `euclidean` preserves the historical definition `-min_t ||position_t-goal||`: it rewards the closest approach attained at any time. `final_euclidean` is the explicitly named terminal-position alternative `-||position_T-goal||`. Collision and smoothness policies compose configurable penalties with a base reward. Physical goal detection stays in `simulate()` and is identical for every reward.
 
@@ -112,6 +114,8 @@ Checkpoint marker visibility is a renderer-only option. The notebook control def
 
 Iteration zero and subsequent iterations are called **generations** only for GA. Random search produces independent **batches**; local search produces batches containing the incumbent and mutated neighbors. `PlaybackData.candidate_semantics()` exposes these distinctions, including local acceptance or rejection, without changing any optimizer.
 
+Random Search samples every complete open-loop genome independently from its configured distribution; the reported best-so-far genome is not a parent. Local Search keeps one complete incumbent genome, evaluates complete mutated neighbors in separate episodes, and accepts a strictly better neighbor only after their scores return. It is not an online controller and never chooses a turn from the beetle's current position. GA alone uses population selection, crossover, mutation, and elitism.
+
 The benchmark layer separates four identities: the UI-selected candidate, the best-by-fitness candidate in the current batch, the best-so-far candidate over the run, and the fastest physically successful candidate. Run-level success rate counts seeds with at least one success. Evaluated-genome success fraction counts submitted genomes and can include repeated elites or incumbents; it is never described as independent success evidence.
 
 `animations.py` accepts only completed `PlaybackData`. It deterministically replays each required genome once, caches those paths, and renders method-specific or synchronized frames without calling `ask()`, `tell()`, or `run_method()`. An animation coordinate is `(optimizer iteration, episode timestep)`. A trajectory shorter than the global episode horizon remains at its recorded terminal position.
@@ -125,6 +129,8 @@ The benchmark layer separates four identities: the UI-selected candidate, the be
 The JSON manifest `pilot_scenes.json` defines the reviewed pilot set. Every export writes a metadata sidecar containing the scene/style configuration, playback identity, genome digest or synthetic radian values, and an explicit `rendering_launches_optimizer: false` statement. GIF uses Pillow; MP4 is optional and requires an available `ffmpeg` writer.
 
 The historical nine-GIF package remains declared in `act1_scenes.json`. The polished lecture package is declared in `act1_final_scenes.json`: eight animations plus a four-frame static Scene 04 sequence. `python -m buglab.act1` is the explicit experiment-preparation boundary: it runs the fixed seeded configurations and saves compact playback files plus bounded operation logs under `examples/act1/`. `python -m buglab.act1_bundle` only loads those records, replays deterministic physics, and renders the final package. It never constructs an optimizer. Scene 09's checkpoint-following path is labeled as an explanatory, physics-valid reference and is not optimizer output or reward input. Two Bridges colors classify an actual centre-line crossing through a physically open gap; physical goal success is stored and described separately.
+
+The focused refinement is declared in `act1_refined_scenes.json`. `python -m buglab.refined_data` is its explicit experiment-preparation step; `python -m buglab.refined_scenes` is a render-only step over saved playback and operation records. Its method scenes preserve candidate-generation semantics, and its rectangular-spiral geometry and optimizer examples are deliberately separate so the valid route is never presented as an optimizer observation.
 
 ## Интерпретация начального эксперимента
 

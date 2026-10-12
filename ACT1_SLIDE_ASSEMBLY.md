@@ -14,10 +14,14 @@ This 15-slide structure keeps one teaching claim per slide and uses the polished
 | 8 | Summarize the general GA loop | Still from Scene 05 plus a simple slide-native loop: initialize → evaluate → select → vary → repeat | Name selection probabilities, stochastic kernels, and crossover variants only as appendix topics. |
 | 9 | Show repeated evolution | `06_simple_evolution.gif` | Separate the current population from best-so-far; monotone best-so-far is bookkeeping. |
 | 10 | Introduce a richer route landscape | `07_two_bridges_evolution.gif` | Barrier-opening classification is not a goal-success claim. |
-| 11 | Compare three search semantics | `08_method_comparison.gif` | GA population, independent random batches, local incumbent plus neighbors; matched budget. |
+| 11 | Explain Random Search | `outputs/act1_refined/A1_random_independent_attempts.gif` | Every complete genome is sampled independently; best-so-far is retained only for reporting. |
+| 11a | Explain Local Search | `outputs/act1_refined/A2_local_incumbent_neighbors.gif` | Incumbent and mutated neighbors run as complete episodes; accept or reject between episodes, never online. |
+| 11b | Explain GA variation | `outputs/act1_refined/A3_ga_population_variation.gif` | Population selection, crossover, mutation, and the complete episode of a recorded offspring. |
+| 11c | Compare the three mechanisms | `outputs/act1_refined/A4_matched_method_comparison.gif` | Same seed, physics, policy, population, and 224-evaluation budget; one seed is not a ranking. |
 | 12 | Generalize beyond beetles | Three compact slide-native examples: TSP tours, scheduling permutations, neural-network parameter vectors | Encoding determines what variation means. No new simulator result is implied. |
 | 13 | Discuss encoding and admissibility | Reuse the gene rows from `04b_crossover_child.svg` | Bounds and repair keep commands admissible; physics still decides whether motion is blocked. |
-| 14 | Reveal the fitness-design limitation | `09_spiral_fitness_problem.gif` | Closest approach can reward the wrong side of a wall; the valid detour injects explanatory route knowledge. |
+| 14 | Pose the fitness-design problem | `outputs/act1_refined/B2_rectangular_spiral_optimizer.gif` | The recorded closest-approach run fails; do not reveal the route or claim impossibility. |
+| 14a | Reveal the geometric barrier | `outputs/act1_refined/B1_rectangular_spiral_barrier.gif` | Every feasible route must become farther than the start; compare current distance with remembered minimum. |
 | 15 | State realistic limitations and transition to Acts II–IV | Final still from Scene 09 plus a short limitations list | One seeded run is illustrative, fitness design matters, and the next question is evolving richer controllers such as neural networks. |
 
 ## Appendix pointers
@@ -30,4 +34,5 @@ Keep selection probability formulas, convergence qualifications, stochastic tran
 - Prefer the SVG versions of Scene 04 when the presentation editor supports them.
 - Do not label a Two Bridges crossing as success unless the recorded physical `reached` outcome is true.
 - Keep the Scene 09 formula visible: the selected policy is minimum-over-trajectory distance, not terminal distance.
+- In the refined barrier reveal, `euclidean = -min_t d_t` can plateau during the necessary detour, while `final_euclidean = -d_T` can worsen. Neither behavior proves that GA cannot solve the map.
 - The original `04_crossover_mutation.gif` is optional backup material under `outputs/act1_final/optional/`; it is not part of the main sequence.

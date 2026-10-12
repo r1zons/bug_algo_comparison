@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "B1_rectangular_spiral_barrier",
+    "kind": "distance_barrier",
+    "duration_seconds": 9,
+    "fps": 12,
+    "educational_message": "A boundary-attached separator forces every feasible path through a region farther from the goal than the start.",
+    "data_path": null,
+    "operation_log_path": null,
+    "comparison_data_paths": null,
+    "snapshot_indices": [],
+    "max_candidates": 1
+  },
+  "source_data_paths": {
+    "map_source": "buglab/maps.py"
+  },
+  "source_data_sha256": {
+    "map_source": "30c6f6ea472da0d351423bbfe96cca161311133e95b61db84fb91d8425514819"
+  },
+  "source_details": {
+    "source_type": "analytic geometry plus deterministic physics-valid reference",
+    "distance_barrier": {
+      "starting_distance": 15.264337522473747,
+      "required_distance": 47.099999999999994,
+      "delta": 31.83566247752625,
+      "separator_x": 73.1,
+      "justification": "The radius-inflated lower wall touches the left boundary, so every start-to-goal centre path must pass its right edge."
+    },
+    "reference_genome_sha256": "4710006b00c0290e81d46753513fff0df7fd424b0e93a87e2505e53aa31ee12a",
+    "reference_reached_goal": true,
+    "reference_reached_at": 76,
+    "reference_collisions": 0,
+    "reference_is_optimizer_input": false,
+    "maximum_reference_distance": 51.18990594843942,
+    "fitness_distinction": {
+      "euclidean": "negative minimum distance over the complete episode",
+      "final_euclidean": "negative distance at the final episode position"
+    }
+  },
+  "export": {
+    "renderer": "buglab.refined_scenes",
+    "fps": 12,
+    "configured_frame_count": 108,
+    "canvas_pixels": [
+      1280,
+      720
+    ],
+    "gif_sha256": "ef8ff289408c47de7778ddec1c02ec3c69075e3ce7231a0ae7c4b65c5b0a269d",
+    "poster_sha256": "8403a3b3d71a68025d888a40ab3bc3f617a778d127e2fb94a2de2681ec13acdf"
+  },
+  "rendering_launches_optimizer": false
+}

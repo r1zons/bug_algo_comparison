@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "A3_ga_population_variation",
+    "kind": "ga_mechanics",
+    "duration_seconds": 9,
+    "fps": 12,
+    "educational_message": "GA generates candidates through population selection, crossover, mutation, and elitism.",
+    "data_path": "examples/act1/bridges_ga.npz",
+    "operation_log_path": "examples/act1_refined/bridges_ga_operations.json",
+    "comparison_data_paths": null,
+    "snapshot_indices": [],
+    "max_candidates": 10
+  },
+  "source_data_paths": {
+    "playback": "examples/act1/bridges_ga.npz",
+    "operation_log": "examples/act1_refined/bridges_ga_operations.json"
+  },
+  "source_data_sha256": {
+    "playback": "2870ac655f629a6e51acf37e1ed7d20f8a360b239d8dde30f0ea99ca8839ab7a",
+    "operation_log": "ba5d8ec7a58f412468edfbd0880f7e5c256aef488571ccba165513ce0d04578d"
+  },
+  "source_details": {
+    "method_semantics": "population, tournament selection, one-point crossover, mutation, elitism",
+    "operation_id": 18,
+    "generation": 1,
+    "parent_ids": [
+      5,
+      5
+    ],
+    "parent_scores": [
+      -23.058055730280127,
+      -23.058055730280127
+    ],
+    "cut": 24,
+    "mutated_indices": [
+      3,
+      11,
+      14,
+      18,
+      23,
+      28,
+      33,
+      35,
+      39,
+      48,
+      52,
+      53,
+      65,
+      80,
+      85
+    ],
+    "child_candidate_index": 2,
+    "child_score": -54.259683580804754,
+    "child_genome_sha256": "f183d942b839ae89fe4b2414761a2b3237f00aadafbc30801cb95e6c20ffd2fb"
+  },
+  "export": {
+    "renderer": "buglab.refined_scenes",
+    "fps": 12,
+    "configured_frame_count": 108,
+    "canvas_pixels": [
+      1280,
+      720
+    ],
+    "gif_sha256": "29c939c88819e9798037826d0908fe325f8e317e1a65d808cffcff278386be62",
+    "poster_sha256": "78a09bdc4e9b253fe573e8150fabfcb2b9077518f23d820e4e5a3c8bf8fe0ca4"
+  },
+  "rendering_launches_optimizer": false
+}

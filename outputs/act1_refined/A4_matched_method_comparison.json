@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "A4_matched_method_comparison",
+    "kind": "method_comparison",
+    "title": "\u0422\u0440\u0438 \u0441\u043f\u043e\u0441\u043e\u0431\u0430 \u0441\u043e\u0437\u0434\u0430\u0432\u0430\u0442\u044c \u043a\u0430\u043d\u0434\u0438\u0434\u0430\u0442\u043e\u0432",
+    "duration_seconds": 9,
+    "fps": 12,
+    "output_format": "gif",
+    "snapshot_index": 0,
+    "candidate_index": null,
+    "candidate_selector": "best_by_fitness",
+    "max_candidates": 8,
+    "show_checkpoint_markers": false,
+    "data_path": null,
+    "operation_log_path": null,
+    "comparison_data_paths": {
+      "ga": "examples/act1/bridges_ga.npz",
+      "random": "examples/act1/bridges_random.npz",
+      "local": "examples/act1/bridges_local.npz"
+    },
+    "educational_message": "The same seed, physics, fitness, and evaluation budget expose different candidate-generation semantics, not a general ranking."
+  },
+  "style": {
+    "canvas_width": 12.8,
+    "canvas_height": 7.2,
+    "background": "white",
+    "text": "#20262d",
+    "trajectory": "#2268a8",
+    "population": "#6f8faa",
+    "highlight": "#168579",
+    "collision": "#c43d3d",
+    "secondary": "#7655a6",
+    "muted": "#8a96a3",
+    "font_family": "DejaVu Sans"
+  },
+  "source_playback": {
+    "ga": {
+      "map_name": "two_bridges",
+      "method": "ga",
+      "fitness_name": "euclidean",
+      "seed": 4,
+      "generations": 14,
+      "population": 16,
+      "collision_penalty": 0.5,
+      "smoothness_weight": 1.0
+    },
+    "random": {
+      "map_name": "two_bridges",
+      "method": "random",
+      "fitness_name": "euclidean",
+      "seed": 4,
+      "generations": 14,
+      "population": 16,
+      "collision_penalty": 0.5,
+      "smoothness_weight": 1.0
+    },
+    "local": {
+      "map_name": "two_bridges",
+      "method": "local",
+      "fitness_name": "euclidean",
+      "seed": 4,
+      "generations": 14,
+      "population": 16,
+      "collision_penalty": 0.5,
+      "smoothness_weight": 1.0
+    }
+  },
+  "source_data_paths": {
+    "comparison_ga": "examples/act1/bridges_ga.npz",
+    "comparison_random": "examples/act1/bridges_random.npz",
+    "comparison_local": "examples/act1/bridges_local.npz"
+  },
+  "source_details": {
+    "illustrative": false,
+    "methods": [
+      "ga",
+      "random",
+      "local"
+    ],
+    "matched_configuration": {
+      "map_name": "two_bridges",
+      "method": "matched",
+      "fitness_name": "euclidean",
+      "seed": 4,
+      "generations": 14,
+      "population": 16,
+      "collision_penalty": 0.5,
+      "smoothness_weight": 1.0
+    },
+    "candidate_semantics": {
+      "ga": "population with inheritance",
+      "random": "independent batches",
+      "local": "incumbent plus mutated neighbors"
+    },
+    "interpretation_scope": "one matched seed illustrates candidate-generation semantics, not optimizer superiority"
+  },
+  "export": {
+    "renderer": "buglab.scenes",
+    "format": "gif",
+    "fps": 12,
+    "frame_count": 108,
+    "canvas_inches": [
+      12.8,
+      7.2
+    ],
+    "dpi": 100,
+    "canvas_pixels": [
+      1280,
+      720
+    ],
+    "artifact_sha256": "cdfe7c83002abd67f4319cbc0b7e1571afff7930a05191bf00fb8817574b1828",
+    "poster_sha256": "6e7cf075ce177fee2f8b24436ce31f04dd9744e241a827588298e3317094a9e6",
+    "gif_sha256": "cdfe7c83002abd67f4319cbc0b7e1571afff7930a05191bf00fb8817574b1828"
+  },
+  "rendering_launches_optimizer": false
+}

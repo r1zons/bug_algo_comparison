@@ -57,7 +57,8 @@ def _trace(positions, *, reached=False, reached_at=None, collisions=0, turns=Non
 
 def test_all_named_maps_are_valid_and_reachable_with_real_physics():
     assert tuple(MAPS) == (
-        "default", "open_field", "two_bridges", "spiral", "narrow_gate", "dead_end"
+        "default", "open_field", "two_bridges", "spiral", "rectangular_spiral",
+        "narrow_gate", "dead_end"
     )
     for definition in MAPS.values():
         definition.validate_clearance(radius=1.1)

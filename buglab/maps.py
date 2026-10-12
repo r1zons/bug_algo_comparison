@@ -1,6 +1,7 @@
 """Named map definitions, independent of physics and fitness policy."""
 
 from dataclasses import dataclass
+from math import hypot
 
 from .geometry import Rectangle
 
@@ -43,6 +44,17 @@ class MapDefinition:
             if not (0 <= obstacle.xmin < obstacle.xmax <= self.width and
                     0 <= obstacle.ymin < obstacle.ymax <= self.height):
                 raise ValueError("Map obstacles must lie within map boundaries")
+
+
+@dataclass(frozen=True)
+class DistanceBarrierCertificate:
+    """Analytic lower bound for a required Euclidean-distance detour."""
+
+    starting_distance: float
+    required_distance: float
+    delta: float
+    separator_x: float
+    justification: str
 
 
 DEFAULT_MAP = MapDefinition(
@@ -127,9 +139,66 @@ SPIRAL = MapDefinition(
 )
 
 
+# Alternating boundary-attached walls form an elongated rectangular spiral
+# corridor. The lower wall is also an analytic separator: a radius-inflated
+# beetle centre must pass to its right to move from the start side to the goal
+# side. Checkpoints validate a physical reference only; optimizers never see
+# them unless checkpoint fitness is selected explicitly.
+RECTANGULAR_SPIRAL = MapDefinition(
+    width=110.0,
+    height=52.0,
+    start=(18.0, 16.0),
+    goal=(26.0, 29.0),
+    obstacles=(
+        Rectangle(0.0, 20.0, 72.0, 24.0),
+        Rectangle(20.0, 34.0, 110.0, 38.0),
+    ),
+    checkpoints=((75.0, 17.0), (76.0, 29.0)),
+    name="rectangular_spiral",
+)
+
+
+def rectangular_spiral_distance_barrier(radius: float = 1.1) -> DistanceBarrierCertificate:
+    """Certify the minimum distance increase forced by the lower separator.
+
+    Inflating the boundary-attached lower wall by the beetle radius separates
+    the start (below) from the goal (above). Every continuous collision-free
+    centre path must therefore contain a point with ``x >= wall.xmax+radius``.
+    Its distance to the goal is at least the horizontal separation from that
+    line. This is a topology-based bound over every feasible path, not a claim
+    inferred from one reference trajectory or a rasterized planner.
+    """
+    if radius < 0:
+        raise ValueError("Beetle radius cannot be negative")
+    wall = RECTANGULAR_SPIRAL.obstacles[0]
+    start = RECTANGULAR_SPIRAL.start
+    goal = RECTANGULAR_SPIRAL.goal
+    if wall.xmin != 0 or not start[1] < wall.ymin - radius or not goal[1] > wall.ymax + radius:
+        raise ValueError("Rectangular-spiral separator geometry no longer satisfies the proof")
+    separator_x = wall.xmax + radius
+    if goal[0] >= separator_x:
+        raise ValueError("Goal must lie to the left of the required separator line")
+    starting_distance = hypot(start[0] - goal[0], start[1] - goal[1])
+    required_distance = separator_x - goal[0]
+    delta = required_distance - starting_distance
+    if delta <= 0:
+        raise ValueError("Rectangular spiral does not provide a positive distance barrier")
+    return DistanceBarrierCertificate(
+        starting_distance,
+        required_distance,
+        delta,
+        separator_x,
+        "The radius-inflated lower wall touches the left boundary, so every "
+        "start-to-goal centre path must pass its right edge.",
+    )
+
+
 MAPS = {
     definition.name: definition
-    for definition in (DEFAULT_MAP, OPEN_FIELD, TWO_BRIDGES, SPIRAL, NARROW_GATE, DEAD_END)
+    for definition in (
+        DEFAULT_MAP, OPEN_FIELD, TWO_BRIDGES, SPIRAL, RECTANGULAR_SPIRAL,
+        NARROW_GATE, DEAD_END,
+    )
 }
 
 

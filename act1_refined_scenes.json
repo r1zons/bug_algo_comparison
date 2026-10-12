@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "package": "Act I focused optimizer and distance-barrier refinements",
+  "scenes": [
+    {
+      "name": "A1_random_independent_attempts",
+      "kind": "random_mechanics",
+      "duration_seconds": 10,
+      "fps": 12,
+      "educational_message": "Random Search samples a new complete open-loop genome for every candidate; best-so-far is reporting only.",
+      "data_path": "examples/act1/bridges_random.npz",
+      "snapshot_indices": [0, 1, 2, 3],
+      "max_candidates": 8
+    },
+    {
+      "name": "A2_local_incumbent_neighbors",
+      "kind": "local_mechanics",
+      "duration_seconds": 14,
+      "fps": 12,
+      "educational_message": "Local Search evaluates complete mutated neighbor genomes, then accepts an improvement between episodes.",
+      "data_path": "examples/act1/bridges_local.npz",
+      "snapshot_indices": [3, 4, 5, 6],
+      "max_candidates": 6
+    },
+    {
+      "name": "A3_ga_population_variation",
+      "kind": "ga_mechanics",
+      "duration_seconds": 9,
+      "fps": 12,
+      "educational_message": "GA generates candidates through population selection, crossover, mutation, and elitism.",
+      "data_path": "examples/act1/bridges_ga.npz",
+      "operation_log_path": "examples/act1_refined/bridges_ga_operations.json",
+      "max_candidates": 10
+    },
+    {
+      "name": "A4_matched_method_comparison",
+      "kind": "comparison",
+      "duration_seconds": 9,
+      "fps": 12,
+      "educational_message": "The same seed, physics, fitness, and evaluation budget expose different candidate-generation semantics, not a general ranking.",
+      "comparison_data_paths": {
+        "ga": "examples/act1/bridges_ga.npz",
+        "random": "examples/act1/bridges_random.npz",
+        "local": "examples/act1/bridges_local.npz"
+      },
+      "max_candidates": 8
+    },
+    {
+      "name": "B1_rectangular_spiral_barrier",
+      "kind": "distance_barrier",
+      "duration_seconds": 9,
+      "fps": 12,
+      "educational_message": "A boundary-attached separator forces every feasible path through a region farther from the goal than the start.",
+      "max_candidates": 1
+    },
+    {
+      "name": "B2_rectangular_spiral_optimizer",
+      "kind": "rectangular_optimizer",
+      "duration_seconds": 12,
+      "fps": 12,
+      "educational_message": "One recorded GA run under closest-approach Euclidean fitness approaches the wall but does not establish optimizer impossibility.",
+      "data_path": "examples/act1_refined/rectangular_spiral_ga.npz",
+      "max_candidates": 10
+    }
+  ]
+}

@@ -3,7 +3,8 @@ from .fitness import (FitnessPolicy,FitnessResult,LegacyFitness,EuclideanFitness
                       GeodesicFitness,SuccessDistanceFitness,CollisionPenaltyFitness,
                       CheckpointFitness,SmoothnessFitness,FITNESS_NAMES,make_fitness)
 from .geometry import Rectangle
-from .maps import DEFAULT_MAP, MAPS, MapDefinition, get_map
+from .maps import (DEFAULT_MAP, MAPS, MapDefinition, DistanceBarrierCertificate, get_map,
+                   rectangular_spiral_distance_barrier)
 from .metrics import OutcomeMetrics, outcome_metrics
 from .operator_story import (GeneticOperation,OperationSelection,SyntheticOperation,
                              classify_operation,load_operation_log,reconstruct_child,
@@ -19,6 +20,7 @@ __all__ = [
     'EuclideanFitness', 'FinalEuclideanFitness', 'SparseGoalFitness', 'GeodesicFitness', 'SuccessDistanceFitness',
     'CollisionPenaltyFitness', 'CheckpointFitness', 'SmoothnessFitness',
     'FITNESS_NAMES', 'make_fitness', 'MAPS', 'get_map',
+    'DistanceBarrierCertificate', 'rectangular_spiral_distance_barrier',
     'OutcomeMetrics', 'outcome_metrics',
     'GeneticOperation', 'OperationSelection', 'SyntheticOperation',
     'classify_operation', 'load_operation_log', 'reconstruct_child', 'select_operation_examples',

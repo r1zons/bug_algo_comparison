@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "representative_frames": {
+    "A1_random_independent_attempts": {
+      "frames": 35,
+      "indices": [
+        0,
+        17,
+        34
+      ]
+    },
+    "A2_local_incumbent_neighbors": {
+      "frames": 124,
+      "indices": [
+        0,
+        62,
+        123
+      ]
+    },
+    "A3_ga_population_variation": {
+      "frames": 54,
+      "indices": [
+        0,
+        27,
+        53
+      ]
+    },
+    "A4_matched_method_comparison": {
+      "frames": 94,
+      "indices": [
+        0,
+        47,
+        93
+      ]
+    },
+    "B1_rectangular_spiral_barrier": {
+      "frames": 76,
+      "indices": [
+        0,
+        38,
+        75
+      ]
+    },
+    "B2_rectangular_spiral_optimizer": {
+      "frames": 125,
+      "indices": [
+        0,
+        62,
+        124
+      ]
+    }
+  },
+  "artifact_sha256": "3f65e06344b7a221a2c713712abe6bd156313cbb7d686fdd33ae2bc7a41f779c",
+  "rendering_launches_optimizer": false
+}

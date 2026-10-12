@@ -98,3 +98,14 @@ Closest-approach Euclidean fitness (`-min_t distance`) is the deliberately simpl
 ## Production boundary
 
 `python -m buglab.act1` explicitly creates the seven source runs. `python -m buglab.act1_bundle --manifest act1_final_scenes.json --output outputs/act1_final` loads only saved data and exports the polished animations, static Scene 04 sequence, provenance sidecars, and inspection contact sheet. Rendering never launches optimization. `act1_scenes.json` and `outputs/act1_before_polish/` remain available for historical comparison.
+
+## Focused method and distance-barrier refinement
+
+The additive package in `outputs/act1_refined/` leaves the reviewed Act I assets intact. Its method sequence makes the candidate-generation mechanisms explicit before the matched comparison:
+
+1. Random Search: every shown attempt is a newly sampled complete genome; the dashed best-so-far path is reporting state only. Small relative-turn variance and an initial heading toward the goal explain naturally smooth-looking paths.
+2. Local Search: candidate 0 remains the incumbent while complete mutated neighbors run independent episodes; a strict improvement is accepted only between episodes. The selected sequence contains natural acceptances and rejections and is not online navigation.
+3. GA: a real traced update shows an evaluated population, selected parents, crossover and mutation, and the resulting candidate's complete episode.
+4. Matched comparison: all three recorded runs use `two_bridges`, Euclidean fitness, seed 4, population 16, and 224 evaluations. It illustrates mechanics for one seed, not superiority.
+
+The new `rectangular_spiral` case separates the problem from its reveal. First show the recorded Euclidean-fitness optimizer run (`B2`); then reveal the analytic separator certificate and physics-valid route (`B1`). The route is post-hoc explanatory data, never reward input. The graphic distinguishes closest-approach `euclidean`, whose remembered minimum can plateau during a detour, from `final_euclidean`, which decreases as the current terminal point moves away.

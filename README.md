@@ -63,7 +63,7 @@ Experiment runner -> history/snapshots -> visualization (PNG/GIF/CSV)
 
 График по 3 seeds — **демонстрационный, не доказательство превосходства**. Для надёжного сравнения увеличьте число seeds до 20–30, контролируйте параметры и сравнивайте дополнительно успех достижения цели. Методы имеют разную вычислительную цену помимо fitness и разные гиперпараметры, поэтому сравнение по одному количеству evaluations не исчерпывает сопоставимость.
 
-Use `--map` to select `default`, `open_field`, `two_bridges`, `spiral`, `narrow_gate`, or `dead_end`. Use `--fitness` to select `sparse_goal`, `euclidean`, `final_euclidean`, `success_distance`, `collision_penalty`, `checkpoints`, `geodesic`, or `smoothness`.
+Use `--map` to select `default`, `open_field`, `two_bridges`, `spiral`, `rectangular_spiral`, `narrow_gate`, or `dead_end`. Use `--fitness` to select `sparse_goal`, `euclidean`, `final_euclidean`, `success_distance`, `collision_penalty`, `checkpoints`, `geodesic`, or `smoothness`.
 
 ### Reward information levels
 
@@ -158,3 +158,16 @@ python -m buglab.act1_bundle \
 ```
 
 See [ACT1_ANIMATION_INDEX.md](ACT1_ANIMATION_INDEX.md) for the lecture order, source of every scene, reproduction details, and educational limitations. The source manifest is `act1_final_scenes.json`; each GIF and static frame has a JSON provenance sidecar, and GIF sidecars include the exported artifact hash. Historical outputs remain under `outputs/act1_before_polish/`.
+
+## Focused Act I refinement
+
+The additive refinement explains optimizer mechanics before comparison and replaces the square-spiral lecture example with an analytically certified rectangular distance barrier. Prepare its recorded data explicitly, then render without launching an optimizer:
+
+```bash
+python -m buglab.refined_data --output examples/act1_refined
+python -m buglab.refined_scenes \
+  --manifest act1_refined_scenes.json \
+  --output outputs/act1_refined
+```
+
+The method comparison uses `two_bridges`, Euclidean fitness, seed 4, population 16, and 224 candidate evaluations for each method. It demonstrates how candidates are generated, not which optimizer is generally superior. The rectangular-spiral optimizer scene contains no reference route or checkpoint markers; the separate geometric reveal uses an analytic all-path barrier certificate and a real-simulator reference genome solely for post-hoc explanation. See [ACT1_REFINED_INDEX.md](ACT1_REFINED_INDEX.md).

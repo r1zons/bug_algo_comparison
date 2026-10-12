@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "scene": {
+    "name": "B2_rectangular_spiral_optimizer",
+    "kind": "rectangular_optimizer",
+    "duration_seconds": 12,
+    "fps": 12,
+    "educational_message": "One recorded GA run under closest-approach Euclidean fitness approaches the wall but does not establish optimizer impossibility.",
+    "data_path": "examples/act1_refined/rectangular_spiral_ga.npz",
+    "operation_log_path": null,
+    "comparison_data_paths": null,
+    "snapshot_indices": [],
+    "max_candidates": 10
+  },
+  "source_data_paths": {
+    "playback": "examples/act1_refined/rectangular_spiral_ga.npz"
+  },
+  "source_data_sha256": {
+    "playback": "3952b1b24e30776935ef07b6fb42868eb279880d0042cf43f761a791a85dd944"
+  },
+  "source_details": {
+    "method": "ga",
+    "fitness": "euclidean",
+    "fitness_definition": "negative minimum Euclidean distance over the full episode",
+    "seed": 0,
+    "evaluation_budget": 224,
+    "run_goal_reached": false,
+    "checkpoint_markers_shown": false,
+    "reference_route_shown": false,
+    "reference_route_available_to_optimizer": false
+  },
+  "export": {
+    "renderer": "buglab.refined_scenes",
+    "fps": 12,
+    "configured_frame_count": 144,
+    "canvas_pixels": [
+      1280,
+      720
+    ],
+    "gif_sha256": "ced381da9eddcbd8795071b9648090794b75c239d6d15dc9710c38dcefce5202",
+    "poster_sha256": "eaa70b6104d0f1f181c1243f0dc7f87325dc45bec5b91791bd45d58c08445fb2"
+  },
+  "rendering_launches_optimizer": false
+}
